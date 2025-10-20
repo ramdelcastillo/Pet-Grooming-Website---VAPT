@@ -57,92 +57,110 @@ $groups = $stmt->fetchAll();
                 <div class="card">
                     <h5 class="card-header">Edit User</h5>
                     <div class="card-body">
-                        <form class="form-horizontal" action="operation/user.php" method="post" enctype="multipart/form-data" id="add_brand">
+                        <form class="form-horizontal" action="operation/user.php" method="post"
+                            enctype="multipart/form-data" id="add_brand">
                             <div class="form-row">
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">First name<span class="text-danger">*</span></label>
-                                    <input type="hidden" class="form-control " name="id" value="<?= $product_group['id']; ?>">
+                                    <input type="hidden" class="form-control " name="id"
+                                        value="<?= $product_group['id']; ?>">
 
-                                    <input type="text" class="form-control " name="fname" value="<?= $product_group['fname']; ?>" required pattern="^[a-zA-Z]+$">
+                                    <input type="text" class="form-control" name="fname"
+                                        value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required pattern="^[a-zA-Z]+$">
+
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">Last name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="lname" value="<?= $product_group['lname']; ?>" required pattern="^[a-zA-Z]+$">
+                                    <input type="text" class="form-control" name="lname"
+                                        value="<?php echo htmlspecialchars($product_group['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required pattern="^[a-zA-Z]+$">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Email<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="email" value="<?= $product_group['email']; ?>" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                                    <input type="text" class="form-control" name="email"
+                                        value="<?php echo htmlspecialchars($product_group['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
+                                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
-                                    
-                                      <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
+
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Address<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="address" value="<?= $product_group['address']; ?>" required  placeholder="Enter address here">
+                                    <input type="text" class="form-control" name="address"
+                                        value="<?php echo htmlspecialchars($product_group['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
+                                        placeholder="Enter address here">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Phone<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="contact" value="<?= $product_group['contact']; ?>" required min_length="10" max_length="10" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter phone">
+                                    <input type="number" class="form-control" name="contact"
+                                        value="<?php echo htmlspecialchars($product_group['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required min_length="10"
+                                        max_length="10" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                                        placeholder="Enter phone">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom01">Role<span class="text-danger">*</span></label>
-                                    <select type="text" class="form-control" placeholder="" name="group_id" required="" value="">
+                                    <select type="text" class="form-control" placeholder="" name="group_id" required=""
+                                        value="">
 
                                         <?php foreach ($groups as $value) { ?>
                                             <option value="<?= $value['id'] ?>" <?php if ($product_group['role_id'] == $value['id']) {
-                                                                                    echo "selected";
-                                                                                } ?>><?= $value['name'] ?></option>
+                                                  echo "selected";
+                                              } ?>><?= $value['name'] ?></option>
                                         <?php } ?>
                                     </select>
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
 
-                                <input class="form-control" type="hidden" name="old_pass" value="<?php echo $product_group['password'] ?>">
+                                <input class="form-control" type="hidden" name="old_pass"
+                                    value="<?php echo $product_group['password'] ?>">
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Password<span class="text-danger">*</span></label>
-                                    <input type="password" name="password" id="newpassword" pattern=".{8,}" class="form-control mb-1" required data-validation-required-message="Password is required" placeholder="Enter Password" value="<?php echo $product_group['password'] ?>">
+                                    <input type="password" name="password" id="newpassword" pattern=".{8,}"
+                                        class="form-control mb-1" required
+                                        data-validation-required-message="Password is required"
+                                        placeholder="Enter Password" value="<?php echo $product_group['password'] ?>">
                                     <div class="valid-feedback">
                                     </div>
 
                                     <span id="password-strength"></span>
                                 </div>
-                                
-                                
-                                         
-                      <!--           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">-->
-                      <!--              <label for="validationCustom01">Project</label>-->
-                      <!--              <select type="text" class="form-control" name="project" required="" value="">-->
 
-                      <!--                <option>Select</option>-->
-                      <!--                              </?php $stmt = $conn->prepare("SELECT * FROM `project` WHERE delete_status='0' ");-->
-                      <!--/$stmt->execute();-->
-                      <!--/$record = $stmt->fetchAll();-->
 
-                      <!--f/oreach ($record as $res) { ?>-->
 
-                      <!--  <option value="</?php echo $res['id'] ?>" </?php if($product_group['project']==$res['id']){echo 'selected';}?> >-->
-                      <!--  </?php echo $res['name'];-->
-                      <!--} ?>-->
-                      <!--  </option>-->
-                      <!--              </select>-->
-                      <!--              <div class="valid-feedback">-->
-                      <!--              </div>-->
-                      <!--          </div>-->
-                                
-                                
-                                
-                                
+                                <!--           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">-->
+                                <!--              <label for="validationCustom01">Project</label>-->
+                                <!--              <select type="text" class="form-control" name="project" required="" value="">-->
+
+                                <!--                <option>Select</option>-->
+                                <!--                              </?php $stmt = $conn->prepare("SELECT * FROM `project` WHERE delete_status='0' ");-->
+                                <!--/$stmt->execute();-->
+                                <!--/$record = $stmt->fetchAll();-->
+
+                                <!--f/oreach ($record as $res) { ?>-->
+
+                                <!--  <option value="</?php echo $res['id'] ?>" </?php if($product_group['project']==$res['id']){echo 'selected';}?> >-->
+                                <!--  </?php echo $res['name'];-->
+                                <!--} ?>-->
+                                <!--  </option>-->
+                                <!--              </select>-->
+                                <!--              <div class="valid-feedback">-->
+                                <!--              </div>-->
+                                <!--          </div>-->
+
+
+
+
 
                             </div>
 
@@ -151,7 +169,8 @@ $groups = $stmt->fetchAll();
 
                             <br>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 ">
-                                <button class="btn btn-primary" type="submit" name="btn_edit" onclick="addBrand()">Submit</button>
+                                <button class="btn btn-primary" type="submit" name="btn_edit"
+                                    onclick="addBrand()">Submit</button>
                             </div>
                     </div>
                     </form>
@@ -217,7 +236,9 @@ $groups = $stmt->fetchAll();
     }
 </style>
 <script src="../assets/js/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js" integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"
+    integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- ... (your existing HTML code) ... -->
 
@@ -250,7 +271,7 @@ $groups = $stmt->fetchAll();
 
 <script>
     function addBrand() {
-        jQuery.validator.addMethod("alphanumeric", function(value, element) {
+        jQuery.validator.addMethod("alphanumeric", function (value, element) {
             // Check if the value is empty
             if (value.trim() === "") {
                 return false;
@@ -263,13 +284,13 @@ $groups = $stmt->fetchAll();
             return /^[a-zA-Z0-9\s!@#$%^&*()_-]+$/.test(value);
         }, "Please enter alphanumeric characters with at least one alphabet character.");
 
-        jQuery.validator.addMethod("validEmail", function(value, element) {
+        jQuery.validator.addMethod("validEmail", function (value, element) {
             // Use a regular expression for basic email validation
             return this.optional(element) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         }, "Please enter a valid email address.");
 
 
-        jQuery.validator.addMethod("lettersonly", function(value, element) {
+        jQuery.validator.addMethod("lettersonly", function (value, element) {
             // Check if the value is empty
             if (value.trim() === "") {
                 return false;
@@ -277,13 +298,13 @@ $groups = $stmt->fetchAll();
             return /^[a-zA-Z\s]*$/.test(value);
         }, "Please enter alphabet characters only");
 
-        $.validator.addMethod("noDigits", function(value, element) {
+        $.validator.addMethod("noDigits", function (value, element) {
             return this.optional(element) || !/\d/.test(value);
         }, "Please enter a without digits.");
 
 
 
-        jQuery.validator.addMethod("noSpacesOnly", function(value, element) {
+        jQuery.validator.addMethod("noSpacesOnly", function (value, element) {
             // Check if the input contains only spaces
             return value.trim() !== '';
         }, "Please enter a non-empty value");

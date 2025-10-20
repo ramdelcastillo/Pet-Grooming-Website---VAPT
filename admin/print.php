@@ -101,20 +101,24 @@ $web = $statement->fetch(PDO::FETCH_ASSOC);
                                 <div class="col-sm-6">
                                     <h5 class="mb-3">From:</h5>
                                    
-                                    <h2 class="text-dark mb-1"><?= $result['fname']; ?>&nbsp;<?= $result['lname']; ?></h2>
+                                    <h2 class="text-dark mb-1">
+  <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>&nbsp;
+  <?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+</h2>
 
-                                    <div><?= $result['address'] ?></div>
-                                    <div>Email: <?= $result['email'] ?></div>
-                                    <div>Phone: <?= $result['contact'] ?></div>
-                                    <div>GSTIN: <?= $result['gstin']; ?></div>
+
+                                    <div><?php echo htmlspecialchars($result['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>Email: <?php echo htmlspecialchars($result['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>Phone: <?php echo htmlspecialchars($result['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>GSTIN: <?php echo htmlspecialchars($result['gstin'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                                 </div>
                                 <div class="col-sm-6">
                                     <h5 class="mb-3">To:</h5>
-                                    <h3 class="text-dark mb-1"><?= $cust['cust_name']; ?></h3>
-                                    <div><?= $cust['cust_address']; ?></div>
-                                    <div>Email: <?= $cust['cust_email']; ?></div>
-                                    <div>Phone: <?= $cust['cust_mob']; ?></div>
-                                    <div>GSTIN: <?= $invoice['gstin']; ?></div>
+                                    <h3 class="text-dark mb-1"><?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h3>
+                                    <div><?php echo htmlspecialchars($cust['cust_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>Email: <?php echo htmlspecialchars($cust['cust_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>Phone: <?php echo htmlspecialchars($cust['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div>GSTIN: <?php echo htmlspecialchars($cust['gstin'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                                 </div>
                             </div>
 <?php
@@ -173,8 +177,8 @@ $ftax=0;
                                         ?>
                                             <tr>
                                                 <td class="center"><?= $no ?></td>
-                                                <td class="left strong"><?php if($row1['exp']==0){ echo 'Product- ';}else if($row1['exp']==1){ echo 'Service- ';} ?><?= $row1['name'] ?></td>
-                                                <td class="left"><?= $row1['details'] ?></td>
+                                                <td class="left strong"><?php if($row1['exp']==0){ echo 'Product- ';}else if($row1['exp']==1){ echo 'Service- ';} ?><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td class="left"><?php echo htmlspecialchars($row1['details'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <!--<td class="right"></?= $key3['name'] ?></td>-->
                                                 <td class="center"><?= $row2['quantity'] ?></td>
                                              <td class="right">
@@ -219,25 +223,25 @@ $ftax=0;
                                             <td class="left">
                                                 <strong class="text-dark">Account Details </strong>
                                             </td>
-                                            <td class="right">&nbsp;&nbsp;&nbsp; <?= $web['title'];?></td>
+                                            <td class="right">&nbsp;&nbsp;&nbsp; <?php echo htmlspecialchars($web['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                         </tr>
                                         <tr>
                                             <td class="left">
                                                 <strong class="text-dark"> A/c No. </strong>
                                             </td>
-                                            <td class="right">&nbsp;&nbsp;&nbsp; <?= $web['acc_no'];?></td>
+                                            <td class="right">&nbsp;&nbsp;&nbsp; <?php echo htmlspecialchars($web['acc_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                         </tr>
                                         <tr>
                                             <td class="left">
                                                 <strong class="text-dark"> IFSC</strong>
                                             </td>
-                                            <td class="right">&nbsp;&nbsp;&nbsp; <?= $web['ifsc'];?></td>
+                                            <td class="right">&nbsp;&nbsp;&nbsp; <?php echo htmlspecialchars($web['ifsc'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                         </tr>
                                         <tr>
                                             <td class="left">
-                                                <strong class="text-dark"><?= $web['branch'];?></strong>
+                                                <strong class="text-dark"><?php echo htmlspecialchars($web['branch'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong>
                                             </td>
-                                            <td class="right">&nbsp;&nbsp;&nbsp; <?= $web['badd'];?></td>
+                                            <td class="right">&nbsp;&nbsp;&nbsp; <?php echo htmlspecialchars($web['badd'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                         </tr>
                                     </table>
 

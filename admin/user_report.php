@@ -72,7 +72,7 @@ require_once('../assets/constants/fetch-my-info.php');
                       foreach ($record as $res) { ?>
 
                         <option value="<?php echo $res['id'] ?>">
-                        <?php echo $res['fname']." ".$res['lname'];
+                        <?php echo htmlspecialchars($res['fname'] . ' ' . $res['lname'], ENT_QUOTES, 'UTF-8'); 
                       } ?>
                         </option>      
                                         </select>
@@ -174,11 +174,12 @@ $stmt->execute();
                                     <th><?php echo $no;?></th>
                                    <th><?php
                                    
-                                    echo $tech['fname']." ".$tech['lname']  ; 
+                                    echo htmlspecialchars($tech['fname'] ?? '', ENT_QUOTES, 'UTF-8') . ' ' . 
+     htmlspecialchars($tech['lname'] ?? '', ENT_QUOTES, 'UTF-8'); 
                                  
                                    
                                    ?></th>
-                                        <th><?php if( $key['exp']==0){echo 'Product- '; }elseif( $key['exp']==1){echo 'Service- ';} ?><?php echo $key['name'];?></th>
+                                        <th><?php if( $key['exp']==0){echo 'Product- '; }elseif( $key['exp']==1){echo 'Service- ';} ?><?php echo htmlspecialchars($key['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></th>
                                     
                                         <th><?php echo $key['quantity'];?></th>
     <!--                                      <th>-->

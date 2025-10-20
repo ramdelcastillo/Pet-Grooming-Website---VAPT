@@ -105,16 +105,20 @@ $web = $statement->fetch(PDO::FETCH_ASSOC);
    </head>
    <body>
       <div class="receipt">
-         <h2><?php echo $web['title'];?></h2>
-         <p><?php echo $result['address'];?></p>
+         <h2><?php echo htmlspecialchars($web['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h2>
+         <p><?php echo htmlspecialchars($result['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
          <p>Ph:<?php echo $result['contact'];?></p>
          <hr>
-         <strong><?php echo $result['fname'];?><?php echo $result['lname'];?></strong><br>
+         <strong>
+  <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+  <?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+</strong><br>
+
          <!--<span>M.B.B.S.</span><br>-->
          <!--<span>Reg. No: 270988</span>-->
          <hr>
          <p>Date: <?php echo date("d-m-Y", strtotime($invoice['build_date'])); ?></p>
-         <p><strong>ID: <?php echo $invoice['inv_no'];?> - <?php echo  $cust['cust_name']; ?></strong><br>Address: <?php echo  $cust['cust_address']; ?></p>
+         <p><strong>ID: <?php echo $invoice['inv_no'];?> - <?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong><br>Address: <?php echo htmlspecialchars($cust['cust_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
          <hr>
          <table>
             <tr>
@@ -159,7 +163,7 @@ $ftax=0;
                                             ?>
             <tr>
                 <td><?= $i; ?> </td>
-               <td><?= $row1['name'] ?> </td>
+               <td><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </td>
                <td><?= $item['quantity'] ?></td>
                <td><?php echo $web['currency_symbol'] . number_format($row1['selling_gst'], 2); ?></td>
                <td >

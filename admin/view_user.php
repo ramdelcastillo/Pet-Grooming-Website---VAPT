@@ -52,12 +52,12 @@ require_once('../assets/constants/fetch-my-info.php');
             <!-- ============================================================== -->
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div class="card">
-                    
+
                     <div class="card-header">
-                        
- <?php if (in_array('Add Users',$userroles) || ($admin['role_id']==0))
-                         { ?> 
-                        <a href="add_user.php"><button class="btn btn-primary" type="submit" title="Add User"> Add User</button></a>
+
+                        <?php if (in_array('Add Users', $userroles) || ($admin['role_id'] == 0)) { ?>
+                            <a href="add_user.php"><button class="btn btn-primary" type="submit" title="Add User"> Add
+                                    User</button></a>
                         <?php } ?>
                     </div>
                     <div class="card-body">
@@ -69,9 +69,9 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
-                                      <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?> 
-                                                        <th>Action</th>
-                                                    <?php } ?>
+                                        <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?>
+                                            <th>Action</th>
+                                        <?php } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -95,30 +95,36 @@ require_once('../assets/constants/fetch-my-info.php');
 
 
                                         $no += 1;
-                                    ?>
+                                        ?>
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                            <td><?= $fname; ?> <?= $lname; ?></td>
-                                            <td><?= $email; ?></td>
-                                            <td><?= $group['name']; ?></td>
-                                            <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?> 
                                             <td>
-
-
- <?php if (in_array('Delete Users',$userroles) || ($admin['role_id']==0))
-                         { ?> 
-                                                <a href="#"><button type="button"  title="Delete User" class="btn btn-danger cancel-button" onclick="return confirm('Do you really want to Delete ?') && delForm(event, <?php echo $id; ?>, 'operation/user.php')" ><i class="fas fa-trash"></i></button></a>
-<?php  } ?>
-
- <?php if (in_array('Edit Users',$userroles) || ($admin['role_id']==0))
-                         { ?>  
-
-                                                <a href="#" onclick="editForm(event,<?php echo $id; ?>, 'update_user.php')" class="btn btn-info1"  title="Edit User"><i class="fas fa-edit"></i></a>
-                                                <?php  } ?>
-                                       
+                                                <?php echo htmlspecialchars($fname ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                                <?php echo htmlspecialchars($lname ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                             </td>
-<?php  } ?>
+
+                                            <td><?php echo htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= $group['name']; ?></td>
+                                            <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?>
+                                                <td>
+
+
+                                                    <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0)) { ?>
+                                                        <a href="#"><button type="button" title="Delete User"
+                                                                class="btn btn-danger cancel-button"
+                                                                onclick="return confirm('Do you really want to Delete ?') && delForm(event, <?php echo $id; ?>, 'operation/user.php')"><i
+                                                                    class="fas fa-trash"></i></button></a>
+                                                    <?php } ?>
+
+                                                    <?php if (in_array('Edit Users', $userroles) || ($admin['role_id'] == 0)) { ?>
+
+                                                        <a href="#" onclick="editForm(event,<?php echo $id; ?>, 'update_user.php')"
+                                                            class="btn btn-info1" title="Edit User"><i class="fas fa-edit"></i></a>
+                                                    <?php } ?>
+
+                                                </td>
+                                            <?php } ?>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
@@ -128,12 +134,12 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
-                                        
-                                        
-                                        
-                                       <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?> 
-                                                        <th>Action</th>
-                                                    <?php } ?>
+
+
+
+                                        <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?>
+                                            <th>Action</th>
+                                        <?php } ?>
                                     </tr>
                                 </tfoot>
                             </table>

@@ -62,29 +62,31 @@ require_once('../assets/constants/fetch-my-info.php');
                                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">From Date</label>
 
-                                    <input type="date" class="form-control " name="fromdate" required value="<?php $_POST['fromdate']; ?> ?>">
+                                    <input type="date" class="form-control " name="fromdate" required
+                                        value="<?php $_POST['fromdate']; ?> ?>">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom01">To Date</label>
-                                    <input type="date" class="form-control " name="todate" required value="<?php echo $todate; ?>">
+                                    <input type="date" class="form-control " name="todate" required
+                                        value="<?php echo $todate; ?>">
                                     <div class="valid-feedback" placeholder="User Id">
                                     </div>
                                 </div>
 
-                                
 
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-2">
-                                        <label for="validationCustomUsername"></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                            </div>
 
-                                            <button class="btn btn-primary" type="submit" name="search">Search</button>
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-2">
+                                    <label for="validationCustomUsername"></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
                                         </div>
+
+                                        <button class="btn btn-primary" type="submit" name="search">Search</button>
                                     </div>
-                                   
+                                </div>
+
 
                             </div>
 
@@ -101,7 +103,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th>Invoice No.</th>
                                         <th>Customer No.</th>
                                         <th>Customer Name</th>
-                                        
+
                                         <th>Total</th>
                                         <th>Balance</th>
                                         <th>Due Date</th>
@@ -111,20 +113,35 @@ require_once('../assets/constants/fetch-my-info.php');
                                 </thead>
                                 <tbody>
                                     <?php
-$ftot=0;
-$fbalance=0;
+                                    $ftot = 0;
+                                    $fbalance = 0;
                                     if (isset($_POST['search'])) {
 
                                         $fromdate = $_POST['fromdate'];
                                         $todate = $_POST['todate'];
                                         $type = $_POST['type'];
 
+                                        $date_re = '/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/';
+                                        $valid_from = preg_match($date_re, $fromdate) &&
+                                            checkdate((int) substr($fromdate, 5, 2), (int) substr($fromdate, 8, 2), (int) substr($fromdate, 0, 4));
+
+                                        $valid_to = preg_match($date_re, $todate) &&
+                                            checkdate((int) substr($todate, 5, 2), (int) substr($todate, 8, 2), (int) substr($todate, 0, 4));
+                                        $searchQ = true;
+
+                                        if ($valid_from && $valid_to) {
+                                            $searchQ = true;
+                                        } else {
+                                            $searchQ = false;
+                                        }
 
 
-                                        $sql = "SELECT * FROM tbl_invoice
-    WHERE  created_date >='" . $fromdate . "' and created_date <='" . $todate . "' and delete_status='0' AND status = '0' ";
+                                        // $sql = "SELECT * FROM tbl_invoice WHERE  created_date >='" . $fromdate . "' and created_date <='" . $todate . "' and delete_status='0' AND status = '0' ";
+                                    
+                                        $sql = "SELECT * FROM tbl_invoice WHERE created_date >= :fromdate AND created_date <= :todate AND delete_status='0' AND status = '0'";
                                     } else {
                                         $sql = "SELECT * FROM tbl_invoice where delete_status='0' AND status = '0'  order by id desc";
+                                        $searchQ = false;
                                     }
 
                                     ?>
@@ -135,69 +152,80 @@ $fbalance=0;
 
                                     <?php
 
+                                    if ($searchQ) {
+                                        $statement = $conn->prepare($sql);
+                                        $statement->bindParam(':fromdate', $fromdate);
+                                        $statement->bindParam(':todate', $todate);
+                                    } else {
+                                        $statement = $conn->prepare($sql);
+                                    }
 
-                                    $statement = $conn->prepare($sql);
+
                                     $statement->execute();
 
 
                                     while ($item = $statement->fetch(PDO::FETCH_ASSOC)) {
 
                                         $no += 1;
-                                    ?>
+                                        ?>
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                          <td><?php echo date('d-m-Y', strtotime($item['build_date'])); ?></td>
+                                            <td><?php echo date('d-m-Y', strtotime($item['build_date'])); ?></td>
 
                                             <td><?= $item['inv_no']; ?></td>
-                                            
-                                            
+
+
                                             <td> <?php
-                                    $stmt2 = $conn->prepare("SELECT * FROM `tbl_customer` WHERE cust_id=?");
-                                    // print_r($stmt2);
-                                    $stmt2->execute([$item['customer_id']]);
-                                    //  print_r($stmt2);
-                                    $record2 = $stmt2->fetch();
-                                    echo $record2['cust_mob']; ?></td>
-                                            
-                                            
+                                            $stmt2 = $conn->prepare("SELECT * FROM `tbl_customer` WHERE cust_id=?");
+                                            // print_r($stmt2);
+                                            $stmt2->execute([$item['customer_id']]);
+                                            //  print_r($stmt2);
+                                            $record2 = $stmt2->fetch();
+                                            echo $record2['cust_mob']; ?></td>
+
+
                                             <td>
-                                            <?php
-                                    $stmt2 = $conn->prepare("SELECT * FROM `tbl_customer` WHERE cust_id=?");
-                                    // print_r($stmt2);
-                                    $stmt2->execute([$item['customer_id']]);
-                                    //  print_r($stmt2);
-                                    $record2 = $stmt2->fetch();
-                                    echo $record2['cust_name']; ?>
-                                            
-                                            
+                                                <?php
+                                                $stmt2 = $conn->prepare("SELECT * FROM `tbl_customer` WHERE cust_id=?");
+                                                // print_r($stmt2);
+                                                $stmt2->execute([$item['customer_id']]);
+                                                //  print_r($stmt2);
+                                                $record2 = $stmt2->fetch();
+                                                echo $record2['cust_name']; ?>
+
+
                                             </td>
-                                            
+
                                             <!-- <td><?= $item['final_total']; ?></td> -->
-                                           <td><?php echo $record_website['currency_symbol'] . number_format1($item['final_total'], 2, '.', ','); ?>-/</td>
-<td><?php echo $record_website['currency_symbol'] . number_format1($item['due_total'], 2, '.', ','); ?>-/</td>
-                                          <td><?php echo date('d-m-Y', strtotime($item['due_date'])); ?></td>
-<td><?php echo date('d-m-Y', strtotime($item['created_date'])); ?></td>
+                                            <td><?php echo $record_website['currency_symbol'] . number_format1($item['final_total'], 2, '.', ','); ?>-/
+                                            </td>
+                                            <td><?php echo $record_website['currency_symbol'] . number_format1($item['due_total'], 2, '.', ','); ?>-/
+                                            </td>
+                                            <td><?php echo date('d-m-Y', strtotime($item['due_date'])); ?></td>
+                                            <td><?php echo date('d-m-Y', strtotime($item['created_date'])); ?></td>
 
                                         </tr>
-                                    <?php 
-                                    
-                                    $ftot+=$item['final_total'];
-                                    $fbalance+=$item['due_total'];
+                                        <?php
+
+                                        $ftot += $item['final_total'];
+                                        $fbalance += $item['due_total'];
                                     } ?>
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <th>#</th>
                                         <th></th>
-                                         <th></th>
                                         <th></th>
-                                       
+                                        <th></th>
+
                                         <th>Total</th>
-                                    <th><?php echo $record_website['currency_symbol'] . number_format1($ftot, 2, '.', ','); ?>-/</th>
-<th><?php echo $record_website['currency_symbol'] . number_format1($fbalance, 2, '.', ','); ?>-/</th>
-                                         <th></th>
-                                         <th></th>
+                                        <th><?php echo $record_website['currency_symbol'] . number_format1($ftot, 2, '.', ','); ?>-/
+                                        </th>
+                                        <th><?php echo $record_website['currency_symbol'] . number_format1($fbalance, 2, '.', ','); ?>-/
+                                        </th>
+                                        <th></th>
+                                        <th></th>
 
                                     </tr>
                                 </tfoot>
