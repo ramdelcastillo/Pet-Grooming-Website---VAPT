@@ -8,7 +8,6 @@ require_once('../assets/constants/fetch-my-info.php');
 
 <?php
 
-
 $stmt = $conn->prepare("SELECT * FROM tbl_admin WHERE id='" . $_SESSION['id'] . "'");
 $stmt->execute();
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -213,9 +212,6 @@ if (isset($_POST['update'])) {
                           <?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                         </h2>
 
-
-
-
                       </div>
                     </div>
                     <!--  <div class="float-right"><a href="#" class="user-avatar-email text-secondary">www.henrybarbara.com</a></div> -->
@@ -244,7 +240,7 @@ if (isset($_POST['update'])) {
                       <label for="validationCustom04">Last Name<span class="text-danger">*</span></label>
                       <input type="text" class="form-control" name="lname"
                         value="<?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
-                        pattern="^[a-z A-Z]+$">
+                        >
                       <div class="invalid-feedback">
                       </div>
                     </div>
@@ -256,7 +252,7 @@ if (isset($_POST['update'])) {
                       <label for="validationCustom02">Email<span class="text-danger">*</span></label>
                       <input type="text" class="form-control" name="email"
                         value="<?php echo htmlspecialchars($result['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
-                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                        >
                       <div class="valid-feedback">
                       </div>
                     </div>
