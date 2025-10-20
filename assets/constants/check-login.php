@@ -1,5 +1,6 @@
 <?php
 session_start();
+session_regenerate_id(true);
 // print_r($_SESSION);exit;
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
