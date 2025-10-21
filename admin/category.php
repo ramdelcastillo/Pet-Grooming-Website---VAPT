@@ -97,8 +97,9 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                            <td><?= $name; ?></td>
-                                            <td><?= $status; ?></td>
+                                            <td><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
+<td><?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?></td>
+
                                             
                                             
                                                <?php if (in_array('Delete Category', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Category', $userroles)) { ?> 

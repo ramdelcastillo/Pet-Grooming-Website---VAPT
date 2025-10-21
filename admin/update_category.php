@@ -60,7 +60,7 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <input type="hidden" class="form-control " name="id" value="<?= $product_group['id']; ?>">
 
 
-                                    <input type="text" required="" placeholder="Category Name" class="form-control" value="<?= $product_group['name']; ?> " name="name" required>
+                                    <input type="text" required="" placeholder="Category Name" class="form-control" value="<?= htmlspecialchars($product_group['name'], ENT_QUOTES, 'UTF-8'); ?> " name="name" required>
                                 
                             </div>
                             <div class="col-12 col-md-6">
