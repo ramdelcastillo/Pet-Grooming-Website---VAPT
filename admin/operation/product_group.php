@@ -39,6 +39,21 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $name = htmlspecialchars($_POST['name']);
       $status = htmlspecialchars($_POST['status']);
 
+      $allowed = [
+        1 => 'Active',
+        2 => 'Deactive'
+      ];
+
+      $status_id = filter_input(INPUT_POST, 'status', FILTER_VALIDATE_INT);
+
+      if ($status_id === false || !array_key_exists($status_id, $allowed)) {
+          $_SESSION['error'] = "Invalid status value.";
+          header('Location: ../category.php');
+          exit;
+      }
+
+      $status = $allowed[$status_id];
+
       $stmt = $conn->prepare("UPDATE tbl_product_grp SET name=:name, status=:status WHERE id=:id");
       $stmt->bindParam(':name', $name);
       $stmt->bindParam(':status', $status);

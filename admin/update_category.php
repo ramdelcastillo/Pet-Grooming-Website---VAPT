@@ -67,12 +67,8 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <label class="col-form-label text-sm-right">Status<span class="text-danger">*</span></label>
                                 
                                     <select type="text" class="form-control" placeholder="" name="status" required="" id="">
-                                        <option <?php if ("Active" == $product_group['status']) {
-                                                    echo "Selected";
-                                                } ?>value="Active">Active</option>
-                                        <option <?php if ("Deactive" == $product_group['status']) {
-                                                    echo "Selected";
-                                                } ?> value="Deactive">Deactive</option>
+                                        <option value="1" <?php if ("Active" == $product_group['status']) { echo "selected"; } ?>>Active</option>
+    <option value="2" <?php if ("Deactive" == $product_group['status']) { echo "selected"; } ?>>Deactive</option>
 
                                     </select>
                                 
