@@ -24,10 +24,26 @@ if (isset($_POST['add_stock'])) {
     // Form se values le rahe hain
     $id = $_POST['id'];
     $new_stock = $_POST['openning_stock'];
-    $old_stock = $_POST['old_stock'];
 
-    // Naya stock update karna
-    $updated_stock = $new_stock + $old_stock;
+    if (!filter_var($new_stock, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 10000]])) {
+    $_SESSION['error'] = "Stock addition must be a whole number between 1 and 10,000.";
+    header('location:../productdisplay.php');
+    exit;
+    }
+
+    $query = "SELECT openning_stock FROM tbl_product WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+    $current_stock = $stmt->fetchColumn();
+
+    if ($current_stock === false) {
+        $_SESSION['error'] = "Product not found.";
+        header('location:../productdisplay.php');
+        exit;
+    }
+
+    $updated_stock = $current_stock + $new_stock;
 
     try {
         // PDO query execute karna

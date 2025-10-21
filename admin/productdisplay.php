@@ -106,7 +106,7 @@ $row14 = $statement->fetchAll();
                                                       echo 'Service';
                                                      
                                                  } ?></td>
-                                            <td><?= $name; ?></td>
+                                            <td><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
                                               <td>
     <?php 
         if ($exp == '1') {
