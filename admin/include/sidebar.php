@@ -98,7 +98,7 @@ $record_website=$stmt_web->fetch();
   <?php if (in_array('Category',$userroles) || ($admin['role_id']==0))
                   { ?>  
                 <li class="nav-item ">
-                  <a class="nav-link  " href="category.php"><i class="ti ti-brand-producthunt me-2"></i> Categoryyy</a>
+                  <a class="nav-link  " href="category.php"><i class="ti ti-brand-producthunt me-2"></i> Category</a>
                </li>
                <?php  } ?>
               

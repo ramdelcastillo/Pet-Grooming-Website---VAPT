@@ -5,7 +5,15 @@ error_reporting(0);
 session_start();
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
-  require_once('../../assets/constants/config.php');
+  
+  require_once '/var/www/html/vendor/autoload.php';  
+  $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
+  $dotenv->load();
+
+  $servername = $_ENV['DB_HOST'];
+  $username   = $_ENV['DB_USER'];
+  $password  = $_ENV['DB_PASS'];
+  $dbname     = $_ENV['DB_NAME'];
 
   try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
