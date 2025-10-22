@@ -1,4 +1,4 @@
-<?php
+a<?php
 error_reporting(0);
 require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
@@ -60,7 +60,7 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <input type="hidden" class="form-control " name="id" value="<?= $product_group['id']; ?>">
 
 
-                                    <input type="text" required="" placeholder="Product Group Name" class="form-control" value="<?= $product_group['name']; ?> " name="name" required>
+                                    <input type="text" required="" placeholder="Product Group Name" class="form-control" value="<?php echo htmlspecialchars($product_group['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?> " name="name" required>
                                
                             </div>
                             
@@ -72,7 +72,7 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                                  
 
 
-                                    <input type="text" required="" placeholder="Percentage" class="form-control" value="<?= $product_group['percentage']; ?> " name="percentage" required>
+                                    <input type="text" required="" placeholder="Percentage" class="form-control" value="<?php echo htmlspecialchars($product_group['percentage'] ?? '', ENT_QUOTES, 'UTF-8'); ?> " name="percentage" required>
                                
                             </div>
                             

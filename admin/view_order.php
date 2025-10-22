@@ -53,9 +53,9 @@ require_once('../assets/constants/fetch-my-info.php');
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div class="card">
                     <div class="card-header">
-                           <?php if (in_array('Add Invoice',$userroles) || ($admin['role_id']==0))
-                         { ?>  
-                        <a href="order.php"><button class="btn btn-primary" type="submit" title="Add Invoice"> Add Invoice </button></a>
+                        <?php if (in_array('Add Invoice', $userroles) || ($admin['role_id'] == 0)) { ?>
+                            <a href="order.php"><button class="btn btn-primary" type="submit" title="Add Invoice"> Add
+                                    Invoice </button></a>
                         <?php } ?>
                     </div>
                     <div class="card-body">
@@ -68,12 +68,12 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th>Invoice No.</th>
                                         <th>Customer No.</th>
                                         <th>Customer Name</th>
-                                      
+
                                         <th>Total</th>
-                                     
+
                                         <th>Due Date</th>
-                                         <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles)|| in_array('Check Invoice Receipt', $userroles)) { ?> 
-                                        <th>Action</th>
+                                        <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles) || in_array('Check Invoice Receipt', $userroles)) { ?>
+                                            <th>Action</th>
                                         <?php } ?>
                                     </tr>
                                 </thead>
@@ -92,57 +92,70 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                         $no += 1;
 
-                                         $sqlq = "SELECT * FROM tbl_customer where cust_id = ? ";
+                                        $sqlq = "SELECT * FROM tbl_customer where cust_id = ? ";
 
 
-                                    $stat = $conn->prepare($sqlq);
-                                    $stat->execute([$item['customer_id']]);
+                                        $stat = $conn->prepare($sqlq);
+                                        $stat->execute([$item['customer_id']]);
 
 
-                                 $cust = $stat->fetch();
-                                    ?>
+                                        $cust = $stat->fetch();
+                                        ?>
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                          <td><?php echo date('d-m-Y', strtotime($item['build_date'])); ?></td>
-                                            <td><?= $item['inv_no']; ?></td>
-                                            <td><?= $cust['cust_mob']; ?></td>
-                                            <td><?= $cust['cust_name']; ?></td>
-                                          
+                                            <td><?php echo date('d-m-Y', strtotime($item['build_date'])); ?></td>
+                                            <td><?php echo htmlspecialchars($item['inv_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?php echo htmlspecialchars($cust['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+
                                             <!-- <td><?= $item['final_total']; ?></td> -->
-                                        <td><?php echo $record_website['currency_symbol'] . number_format1($item['final_total'], 2, '.', ','); ?>-/</td>
-
-
-                                           <td><?php echo date('d-m-Y', strtotime($item['due_date'])); ?></td>
-
-                                            
-                                              <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles)|| in_array('Check Invoice Receipt', $userroles)) { ?> 
-                                            <td class="d-flex">
-                                                
-                                                   <?php if (in_array('Add Installment Payment',$userroles) || ($admin['role_id']==0))
-                         { ?>  
-                                                <a href='#' onclick="editForm(event, <?php echo $item['id'] ?>, 'edit.php')" title="Add Installment Payments "   class="btn btn-info btn-sm mr-1"><i class="fas fa-rupee-sign "></i></a>
-                                                
-                                                <?php } ?>
-                                                
-                                                   <?php if (in_array('Check Installment Payments',$userroles) || ($admin['role_id']==0))
-                         { ?>  
-                                                <a href='#' onclick="editForm(event, <?php echo $item['inv_no'] ?>, 'view_payorder.php')" target="_blank" title="Check Installment Payments "  class="btn btn-warning btn-sm mr-1"><i class="fas fa-money-bill-alt"></i></a>
-<?php  } ?>
-           
-              <?php if (in_array('Check Invoice Receipt',$userroles) || ($admin['role_id']==0))
-                         { ?>                                       
-                                                <a href='#' target="_blank" title="Print" onclick="editForm(event, <?php echo $item['id'] ?>, 'print.php')" title="Invoice Print" class="btn btn-secondary btn-sm mr-1"><i class="fas fa-print"></i></a>
-                                                
-                                                  <a href='#' target="_blank" title="Print" onclick="editForm(event, <?php echo $item['id'] ?>, 'print_inv.php')" title="Invoice Print" class="btn btn-blue btn-sm mr-1"><i class="fas fa-print"></i></a>
-                                                 <a href='#' target="_blank" title="Print" onclick="editForm(event, <?php echo $item['id'] ?>, 'inv-print.php')" title="Invoice Print" class="btn btn-success btn-sm mr-1"><i class="fas fa-print"></i></a>
-                                                 
-                                                 
-                                                 
-                                                 
-                                                <?php  } ?>
-                                            
+                                            <td><?php echo $record_website['currency_symbol'] . number_format1($item['final_total'], 2, '.', ','); ?>-/
                                             </td>
+
+
+                                            <td><?php echo date('d-m-Y', strtotime($item['due_date'])); ?></td>
+
+
+                                            <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles) || in_array('Check Invoice Receipt', $userroles)) { ?>
+                                                <td class="d-flex">
+
+                                                    <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0)) { ?>
+                                                        <a href='#' onclick="editForm(event, <?php echo $item['id'] ?>, 'edit.php')"
+                                                            title="Add Installment Payments " class="btn btn-info btn-sm mr-1"><i
+                                                                class="fas fa-rupee-sign "></i></a>
+
+                                                    <?php } ?>
+
+                                                    <?php if (in_array('Check Installment Payments', $userroles) || ($admin['role_id'] == 0)) { ?>
+                                                        <a href='#'
+                                                            onclick="editForm(event, <?php echo $item['inv_no'] ?>, 'view_payorder.php')"
+                                                            target="_blank" title="Check Installment Payments "
+                                                            class="btn btn-warning btn-sm mr-1"><i
+                                                                class="fas fa-money-bill-alt"></i></a>
+                                                    <?php } ?>
+
+                                                    <?php if (in_array('Check Invoice Receipt', $userroles) || ($admin['role_id'] == 0)) { ?>
+                                                        <a href='#' target="_blank" title="Print"
+                                                            onclick="editForm(event, <?php echo $item['id'] ?>, 'print.php')"
+                                                            title="Invoice Print" class="btn btn-secondary btn-sm mr-1"><i
+                                                                class="fas fa-print"></i></a>
+
+                                                        <a href='#' target="_blank" title="Print"
+                                                            onclick="editForm(event, <?php echo $item['id'] ?>, 'print_inv.php')"
+                                                            title="Invoice Print" class="btn btn-blue btn-sm mr-1"><i
+                                                                class="fas fa-print"></i></a>
+                                                        <a href='#' target="_blank" title="Print"
+                                                            onclick="editForm(event, <?php echo $item['id'] ?>, 'inv-print.php')"
+                                                            title="Invoice Print" class="btn btn-success btn-sm mr-1"><i
+                                                                class="fas fa-print"></i></a>
+
+
+
+
+                                                    <?php } ?>
+
+                                                </td>
                                             <?php } ?>
                                         </tr>
                                     <?php } ?>
@@ -155,12 +168,12 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th>Invoice No.</th>
                                         <th>Customer No.</th>
                                         <th>Customer Name</th>
-                                      
+
                                         <th>Total</th>
-                                     
+
                                         <th>Due Date</th>
-                                          <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles)|| in_array('Check Invoice Receipt', $userroles)) { ?> 
-                                        <th>Action</th>
+                                        <?php if (in_array('Add Installment Payment', $userroles) || ($admin['role_id'] == 0) || in_array('Check Installment Payments', $userroles) || in_array('Check Invoice Receipt', $userroles)) { ?>
+                                            <th>Action</th>
                                         <?php } ?>
                                     </tr>
                                 </tfoot>

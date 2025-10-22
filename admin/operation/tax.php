@@ -41,6 +41,20 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $name = htmlspecialchars($_POST['name']);
       $status = htmlspecialchars($_POST['percentage']);
 
+      $percentage = (int) $status;
+
+      $percentage = filter_var(
+        $_POST['percentage'],
+        FILTER_VALIDATE_INT,
+        ["options" => ["min_range" => 0]]
+      );
+
+      if ($percentage === false) {
+          $_SESSION['error'] = "Invalid tax percentage";
+          header('location:../tax.php');
+          exit;
+      }
+
       $stmt = $conn->prepare("UPDATE tbl_tax SET name=:name,percentage=:percentage  WHERE id=:id");
       $stmt->bindParam(':name', $name);
       $stmt->bindParam(':percentage', $status);
