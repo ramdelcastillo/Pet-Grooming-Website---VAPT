@@ -21,11 +21,28 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     if (isset($_POST['btn_save'])) {
       $name = htmlspecialchars($_POST['name']);
       $status = htmlspecialchars($_POST['percentage']);
-        $id= $_SESSION['id'];
+      $delete_status = 0;
+
+      $percentage = (int) $status;
+
+      $percentage = filter_var(
+        $_POST['percentage'],
+        FILTER_VALIDATE_INT,
+        ["options" => ["min_range" => 0]]
+      );
+
+      if ($percentage === false) {
+          $_SESSION['error'] = "Invalid tax percentage";
+          header('location:../tax.php');
+          exit;
+      }
+
+      $id= $_SESSION['id'];
   
-        $stmt = $conn->prepare("INSERT INTO `tbl_tax`(`name`, `percentage`) VALUES (:name,:percentage)");
+      $stmt = $conn->prepare("INSERT INTO `tbl_tax`(`name`, `percentage`, `delete_status`) VALUES (:name,:percentage,:delete_status)");
       $stmt->bindParam(':name', $name);
       $stmt->bindParam(':percentage', $status);
+      $stmt->bindParam(':delete_status', $delete_status);
     
       $stmt->execute();
       //echo "<script>alert(' Record Successfully Added');</script>";
