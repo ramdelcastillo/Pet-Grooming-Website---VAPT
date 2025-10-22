@@ -160,13 +160,17 @@ if(isset($_GET['id']))
 
 if(isset($_POST['del_id']))
 {
-  $stmt = $conn->prepare("DELETE FROM tbl_customer WHERE cust_id = :cust_id");
-  // $stmt = $conn->prepare("UPDATE tbl_product SET delete_status=1 WHERE id=:id");
-  $stmt->bindParam(':cust_id', $_POST['del_id']);
-  $stmt->execute();
- 
+  $cust_id = $_POST['del_id'];
 
-    $_SESSION['success'] = "Customer Deleted Succesfully";
+  $stmt2 = $conn->prepare("UPDATE tbl_invoice SET delete_status = 1 WHERE customer_id = :cust_id");
+  $stmt2->bindParam(':cust_id', $cust_id);
+  $stmt2->execute();
+
+  $stmt = $conn->prepare("DELETE FROM tbl_customer WHERE cust_id = :cust_id");
+  $stmt->bindParam(':cust_id', $cust_id);
+  $stmt->execute();
+
+    $_SESSION['success'] = "Customer and respective invoices were deleted succesfully";
       header('location:../view_customer.php');
        exit;
 }

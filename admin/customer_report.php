@@ -71,7 +71,7 @@ require_once('../assets/constants/fetch-my-info.php');
 
                       foreach ($record as $res) { ?>
 
-                        <option value="<?php echo $res['cust_id'] ?>">
+                        <option value="<?php echo $res['cust_name'] ?>">
                         <?php echo $res['cust_name'];
                       } ?>
                         </option>      
@@ -132,8 +132,20 @@ require_once('../assets/constants/fetch-my-info.php');
                 if(isset($_POST['search']))
                 {
                 $no=1;
-  
-                $stmt=$conn->prepare("SELECT * FROM  `tbl_invoice` WHERE customer_id=?");
+                
+                $stmt = $conn->prepare("
+                    SELECT 
+                        i.*, 
+                        c.cust_name
+                    FROM 
+                        tbl_invoice i
+                    INNER JOIN 
+                        tbl_customer c 
+                    ON 
+                        i.customer_id = c.cust_id
+                    WHERE 
+                        c.cust_name = ?
+                ");
                 $stmt->execute([$_POST['customer']]);
                 $rec=$stmt->fetchAll();
               
@@ -147,8 +159,8 @@ require_once('../assets/constants/fetch-my-info.php');
                                     $stmt2->execute([$key['customer_id']]);
                                    // print_r($stmt2);exit;
                                     $record2 = $stmt2->fetch();
-                                    echo $record2['cust_name']; ?></th>
-                          <th><?php echo  $key['inv_no'];?></th>
+                                    echo htmlspecialchars($record2['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></th>
+                          <th><?php echo htmlspecialchars($key['inv_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?></th>
                             <th><?php echo date('d-m-Y', strtotime($key['build_date'])) ;?></th>
                           
                            <th>
@@ -170,7 +182,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                     }else if($record2['exp']==1){
                                        $pro = 'Service- ';   
                                     } 
-                                    echo $pro.$record2['name']; ?><br>
+                                    echo htmlspecialchars($pro.$record2['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?><br>
                                     <?php  } ?>
                                     </th>
                             <th><?php echo $record_website['currency_symbol']. number_format1($key['final_total'], 2, '.', ','); ?>-/</th>

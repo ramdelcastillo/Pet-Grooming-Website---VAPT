@@ -125,8 +125,8 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                         <tr>
                                             <td><?php echo $no;?></td>
-                                            <td><?php echo  $rt2['cust_name']; ?> </td>
-                                             <td><?php echo  $rt2['cust_mob']; ?> </td>
+                                            <td><?php echo htmlspecialchars($rt2['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </td>
+                                             <td><?php echo htmlspecialchars($rt2['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </td>
                                           <td><?php echo $record_website['currency_symbol'] . number_format1($key['final_total'], 2, '.', ','); ?>-/</td>
 <td><?php echo $record_website['currency_symbol'] . number_format1($key['due_total'], 2, '.', ','); ?>-/</td>
 
