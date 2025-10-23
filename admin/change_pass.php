@@ -10,25 +10,42 @@ require_once('../assets/constants/fetch-my-info.php');
 <?php
 if(isset($_POST['update'])){
 
+   if (empty($_POST['password']) || empty($_POST['cpassword'])){
+        $_SESSION['error'] = "Password fields must not be empty";
+        ?>
+            <script type="text/javascript">
+                window.location = "change_pass.php";
+            </script>
+        <?php 
+        exit;
+    }
 
-  $passw = hash('sha256', $_POST['password']);
-//$passw = hash('sha256',$p);
-//echo $passw;exit;
-function createSalt()
-{
-    return '2123293dsj2hu2nikhiljdsd';
-}
-$salt = createSalt();
-$pass = hash('sha256', $salt . $passw);
+    if ($_POST['password'] != $_POST['cpassword']) {
+        $_SESSION['error'] = "Mismatching passwords";
+        ?>
+            <script type="text/javascript">
+                window.location = "change_pass.php";
+            </script>
+        <?php 
+        exit;
+    }
+    else {
+                $passw = hash('sha256', $_POST['password']);
+        //$passw = hash('sha256',$p);
+        //echo $passw;exit;
+        function createSalt()
+        {
+            return '2123293dsj2hu2nikhiljdsd';
+        }
+        $salt = createSalt();
+        $pass = hash('sha256', $salt . $passw);
 
-  $sql = "UPDATE tbl_admin SET password=:password where id='".$_SESSION['id']."'";
-     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':password',$pass);
- 
-$execute=$stmt->execute();
-
-
-
+        $sql = "UPDATE tbl_admin SET password=:password where id='".$_SESSION['id']."'";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':password',$pass);
+        
+        $execute=$stmt->execute();
+    }
 
  if ($execute === TRUE) {
     echo "<script>alert(' Password Updated Successfully');</script>";
@@ -97,7 +114,7 @@ $execute=$stmt->execute();
                                         <div class="form-group row">
                                             <label class="col-12 col-sm-3 col-form-label text-sm-right">Confirm Password<span class="text-danger">*</span></label>
                                             <div class="col-12 col-sm-8 col-lg-6">
-                                               <input type="password" class="form-control" name="password" placeholder="Confirm new password" required="">
+                                               <input type="password" class="form-control" name="cpassword" placeholder="Confirm new password" required="">
                                        </div>
                                         </div>
                                         <div class="form-group row text-center">
