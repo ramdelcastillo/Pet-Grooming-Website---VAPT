@@ -97,7 +97,7 @@ require_once('../assets/constants/fetch-my-info.php');
                 {
                
   
-                $stmt=$conn->prepare("SELECT * FROM  `tbl_product` WHERE id=?");
+                $stmt=$conn->prepare("SELECT * FROM  `tbl_product` WHERE id=? AND delete_status = 0 AND exp = 0");
                 $stmt->execute([$_POST['customer']]);
                 
                 }else{

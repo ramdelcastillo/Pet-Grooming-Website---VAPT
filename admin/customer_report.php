@@ -135,8 +135,7 @@ require_once('../assets/constants/fetch-my-info.php');
                 
                 $stmt = $conn->prepare("
                     SELECT 
-                        i.*, 
-                        c.cust_name
+                        i.*,                         c.cust_name
                     FROM 
                         tbl_invoice i
                     INNER JOIN 
