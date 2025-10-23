@@ -93,6 +93,12 @@ $stmt->execute();
         return '2123293dsj2hu2nikhiljdsd';
       }
 
+      if (empty($_POST['password']) || empty($_POST['cpassword'])){
+        $_SESSION['error'] = "Password fields must not be empty";
+        header('location:../view_user.php');
+        exit;
+      }
+
       if ($_POST['password'] != $_POST['cpassword']) {
         $_SESSION['error'] = "Mismatching passwords";
         header('location:../view_user.php');
