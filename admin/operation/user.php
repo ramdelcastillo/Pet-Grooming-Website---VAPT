@@ -88,20 +88,21 @@ $stmt->execute();
         $website_logo = $_POST['old_website_image'];
       }
 
+      function createSalt()
+      {
+        return '2123293dsj2hu2nikhiljdsd';
+      }
 
-      if ($_POST['old_pass'] == $_POST['password']) {
-        $password = $_POST['password'];
-      } else {
+      if ($_POST['password'] != $_POST['cpassword']) {
+        $_SESSION['error'] = "Mismatching passwords";
+        header('location:../view_user.php');
+        exit;
+      }
+      else {
         $passw = hash('sha256', $_POST['password']);
-
-        function createSalt()
-        {
-          return '2123293dsj2hu2nikhiljdsd';
-        }
         $salt = createSalt();
         $password = hash('sha256', $salt . $passw);
       }
-
 
       $stmt = $conn->prepare("UPDATE tbl_admin SET email=:email, role_id=:group_id, fname=:fname, lname=:lname, password=:password , project=:project, address=:address, contact=:contact WHERE id=:id");
 
