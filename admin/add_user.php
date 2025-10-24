@@ -69,7 +69,7 @@ $result = $stmt->fetchAll();
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Email<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="email" value="" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter Email Id">
+                                    <input type="text" class="form-control" name="email" value="" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter Email Address">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
@@ -88,12 +88,13 @@ $result = $stmt->fetchAll();
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Password<span class="text-danger">*</span></label>
-                                    <input type="password" name="password" id="newpassword" pattern=".{8,}" class="form-control mb-1" minlength="5" maxlength="15" required data-validation-required-message="Password is required" placeholder="Enter Password">
+                                    <input type="password" name="password" id="newpassword" class="form-control mb-1" required data-validation-required-message="Password is required" placeholder="Enter Password ">
                                     <div class="valid-feedback">
                                     </div>
 
-                                    <span id="password-strength"></span>
+                             
                                 </div>
+                                
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom01">Role<span class="text-danger">*</span></label>
                                     <select type="text" class="form-control" name="group_id" required="" value="">
@@ -104,6 +105,14 @@ $result = $stmt->fetchAll();
                                     </select>
                                     <div class="valid-feedback">
                                     </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
+                                    <label for="validationCustom02">Confirm Password<span class="text-danger">*</span></label>
+                                    <input type="password" name="cpassword" id="newpassword" class="form-control mb-1" required data-validation-required-message="Password is required" placeholder="Enter Password ">
+                                    <div class="valid-feedback">
+                                    </div>
+
+                                  
                                 </div>
                                 
                                 

@@ -35,6 +35,19 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       }
 
 
+      if (empty($_POST['password']) || empty($_POST['cpassword'])){
+        $_SESSION['error'] = "Password fields must not be empty";
+        header('location:../view_user.php');
+        exit;
+      }
+
+      if ($_POST['password'] != $_POST['cpassword']) {
+        $_SESSION['error'] = "Mismatching passwords";
+        header('location:../view_user.php');
+        exit;
+      }
+
+
       $passw = hash('sha256', $_POST['password']);
 
       function createSalt()
@@ -45,7 +58,18 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $password = hash('sha256', $salt . $passw);
 
       $role = 'admin';
-      $stmt = $conn->prepare("INSERT INTO `tbl_admin`( `fname`,`lname`,`email`,`role_id`, `role`,`password`,`project`,`address`,`contact`) VALUES (:fname,:lname,:email,:group_id,:role,:password,:project,:address,:contact)");
+      $stmt = $conn->prepare("INSERT INTO `tbl_admin`(
+          `fname`,`lname`,`email`,`role_id`,`role`,`password`,`project`,`address`,
+          `contact`,`username`,`gender`,`dob`,`image`,`created_on`,`bank_name`,
+          `acc_name`,`acc_no`,`amount`,`total_amount`,`app_code`,`delete_status`,
+          `admin_user`,`gstin`
+      ) VALUES (
+          :fname,:lname,:email,:group_id,:role,:password,:project,:address,
+          :contact,:username,:gender,:dob,:image,:created_on,:bank_name,
+          :acc_name,:acc_no,:amount,:total_amount,:app_code,:delete_status,
+          :admin_user,:gstin
+      )");
+
 
 $fname = htmlspecialchars($_POST['fname']);
 $lname = htmlspecialchars($_POST['lname']);
@@ -53,6 +77,21 @@ $email = htmlspecialchars($_POST['email']);
 $group_id = htmlspecialchars($_POST['group_id']);
 $role = htmlspecialchars($role); // Assuming $role is already sanitized or validated
 $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
+$username = htmlspecialchars($_POST['fname'] . $_POST['lname']);
+$gender = 'Male';
+$dob = '';
+$image = '';
+$created_on = date('Y-m-d');
+$bank_name = '';
+$acc_name = '';
+$acc_no = '';
+$amount = 0;
+$total_amount = '';
+$app_code = 0;
+$delete_status = 0;
+$admin_user = 0;
+$gstin = '';
+
 
 $stmt->bindParam(':fname', $fname);
 $stmt->bindParam(':lname', $lname);
@@ -63,6 +102,20 @@ $stmt->bindParam(':password', $password);
 $stmt->bindParam(':project', $_POST['project']);
 $stmt->bindParam(':address', $_POST['address']);
 $stmt->bindParam(':contact', $_POST['contact']);
+$stmt->bindParam(':username', $username);
+$stmt->bindParam(':gender', $gender);
+$stmt->bindParam(':dob', $dob);
+$stmt->bindParam(':image', $image);
+$stmt->bindParam(':created_on', $created_on);
+$stmt->bindParam(':bank_name', $bank_name);
+$stmt->bindParam(':acc_name', $acc_name);
+$stmt->bindParam(':acc_no', $acc_no);
+$stmt->bindParam(':amount', $amount);
+$stmt->bindParam(':total_amount', $total_amount);
+$stmt->bindParam(':app_code', $app_code);
+$stmt->bindParam(':delete_status', $delete_status);
+$stmt->bindParam(':admin_user', $admin_user);
+$stmt->bindParam(':gstin', $gstin);
 $stmt->execute();
 
 
