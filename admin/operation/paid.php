@@ -3,7 +3,7 @@ session_start();
 
 require_once '/var/www/html/vendor/autoload.php';  
 $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
-$dotenv->load();
+$dotenv->load(); 
 
 $servername = $_ENV['DB_HOST'];
 $username   = $_ENV['DB_USER'];
@@ -21,22 +21,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $inv_no = $_POST['id'];
 
+        $stmt = $conn->prepare("SELECT * FROM tbl_invoice WHERE inv_no=:inv_no");
+        $stmt->bindParam(':inv_no', $inv_no);
+
+        $execute = $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $inv_due_total = $row['due_total']; //89
+        $ptype = $_POST['ptype'];
+        $inv_paid_amt = $row['paid_amt']; //2504
+        $insta_amt = $_POST['insta_amt'];
+
+        if ($inv_due_total === 0) {
+            $_SESSION['error'] = "Already fully paid";
+            header('location:../view_order.php');
+            exit;
+        }
+
+        if (!filter_var($insta_amt, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => $inv_due_total]])) {
+            $_SESSION['error'] = "Invalid installment amount";
+            $response['status'] = 'error';
+            $response['message'] = 'Invalid installment amount';
+            header('location:../view_order.php');
+            exit;
+        }
+
+        if (!filter_var($ptype, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 11]])) {
+            $_SESSION['error'] = "Invalid payment method";
+            header('location:../view_order.php');
+            exit;
+        }
+
+        $added_date = date('Y-m-d');
+
+
+        // $sql = "SELECT * FROM tbl_invoice WHERE created_date >= :fromdate AND created_date <= :todate AND delete_status='0' AND status = '0'";
+
+
+        $sql = "INSERT INTO tbl_installement (inv_no, added_date, insta_amt, due_total, ptype)
+        VALUES (:inv_no, :added_date, :insta_amt, :due_total, :ptype)";
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bindParam(':inv_no', $inv_no);
+        $stmt->bindParam(':added_date', $added_date);
+        $stmt->bindParam(':insta_amt', $insta_amt);
+        $stmt->bindParam(':due_total', $inv_due_total);
+        $stmt->bindParam(':ptype', $ptype);
+
+        $stmt->execute();
 
 
         // Prepare SQL statement for inserting data
-        $added_date = date('Y-m-d');
-        $stmt = $conn->prepare("INSERT INTO `tbl_installement`(`inv_no`, `added_date`, `insta_amt`,`due_total`,`ptype`) VALUES ('" . $_POST['inv_no'] . "','" . $added_date . "','" . $_POST['insta_amt'] . "','" . $_POST['due_total'] . "','" . $_POST['ptype'] . "')");
-        $stmt->execute();
-        $paid = $_POST['paid_amt'] + $_POST['insta_amt'];
+        
+        // $stmt = $conn->prepare("INSERT INTO `tbl_installement`(`inv_no`, `added_date`, `insta_amt`,`due_total`,`ptype`) VALUES 
+        // ('" . $_POST['inv_no'] . "','" . $added_date . "','" . $_POST['insta_amt'] . "','" . $_POST['due_total'] . "','" . $_POST['ptype'] . "')");
+        // $stmt->execute();
+        $paid = $inv_paid_amt + $insta_amt;
+
+        $inv_due_total -= $insta_amt;
 
         //echo $paid;exit;
-        $stmt = $conn->prepare("UPDATE `tbl_invoice` SET due_total=:due_total, paid_amt=:paid_amt WHERE id=:id");
-        $stmt->bindParam(':due_total', $_POST['due_total']);
+        $stmt = $conn->prepare("UPDATE tbl_invoice SET due_total = :due_total, paid_amt = :paid_amt WHERE inv_no = :inv_no");
+        $stmt->bindParam(':due_total', $inv_due_total);
 
         $stmt->bindParam(':paid_amt', $paid);
 
-        $stmt->bindParam(':id', $_POST['id']);
+        $stmt->bindParam(':inv_no', $inv_no);
 
 
         $execute = $stmt->execute();

@@ -11,7 +11,7 @@ require_once('../assets/constants/fetch-my-info.php');
 <div class="dashboard-wrapper">
     <div class="container-fluid  dashboard-content">
         <div class="row">
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="col-xl-12 col-Customer Name lg-12 col-md-12 col-sm-12 col-12">
                 <div class="card">
                     <h5 class="card-header">Add Installment</h5>
                     <div class="card-body">
@@ -30,7 +30,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                  $cust = $stat->fetch();
                         ?>
                         <form id="add-result" class="sign-in-form mt-32 add_customer row">
-                            <input type="hidden" class="form-control " name="id" value="<?= $product['id']; ?>">
+                            <input type="hidden" class="form-control " name="id" value="<?= $product['inv_no']; ?>">
                             <input type="hidden" class="form-control " name="paid_amt" value="<?= $product['paid_amt']; ?>">
 
                             <?php $current_date = date('Y-m-d'); ?>
