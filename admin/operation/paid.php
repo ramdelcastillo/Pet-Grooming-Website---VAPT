@@ -30,9 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $inv_due_total = $row['due_total']; //89
+        $inv_due_total = $row['due_total']; 
         $ptype = $_POST['ptype'];
-        $inv_paid_amt = $row['paid_amt']; //2504
+        $inv_paid_amt = $row['paid_amt']; 
         $insta_amt = $_POST['insta_amt'];
 
         if ($inv_due_total === 0) {
@@ -57,10 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $added_date = date('Y-m-d');
 
-
-        // $sql = "SELECT * FROM tbl_invoice WHERE created_date >= :fromdate AND created_date <= :todate AND delete_status='0' AND status = '0'";
-
-
         $sql = "INSERT INTO tbl_installement (inv_no, added_date, insta_amt, due_total, ptype)
         VALUES (:inv_no, :added_date, :insta_amt, :due_total, :ptype)";
 
@@ -74,17 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmt->execute();
 
-
-        // Prepare SQL statement for inserting data
-        
-        // $stmt = $conn->prepare("INSERT INTO `tbl_installement`(`inv_no`, `added_date`, `insta_amt`,`due_total`,`ptype`) VALUES 
-        // ('" . $_POST['inv_no'] . "','" . $added_date . "','" . $_POST['insta_amt'] . "','" . $_POST['due_total'] . "','" . $_POST['ptype'] . "')");
-        // $stmt->execute();
         $paid = $inv_paid_amt + $insta_amt;
 
         $inv_due_total -= $insta_amt;
 
-        //echo $paid;exit;
         $stmt = $conn->prepare("UPDATE tbl_invoice SET due_total = :due_total, paid_amt = :paid_amt WHERE inv_no = :inv_no");
         $stmt->bindParam(':due_total', $inv_due_total);
 
