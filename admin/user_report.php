@@ -127,74 +127,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                     
                                     
                                     
-                                    <?php 
-                                      $no=1;
-                               
-                                    if(isset($_POST['search']))
-                                    {
-                                      
-                                  
-                                  $stmt = $conn->prepare("
-    SELECT * 
-    FROM tbl_quot_inv_items 
-    INNER JOIN tbl_product ON tbl_product.id = tbl_quot_inv_items.product_id 
-    INNER JOIN tbl_invoice ON tbl_quot_inv_items.inv_id = tbl_invoice.inv_no 
-    WHERE 
-     tbl_invoice.user = ?
-");
-$stmt->execute([$_POST['admin']]);
-
-
-
-
-}else{
-    
-         $stmt = $conn->prepare("
-    SELECT * 
-    FROM tbl_quot_inv_items 
-    INNER JOIN tbl_product ON tbl_product.id = tbl_quot_inv_items.product_id 
-    INNER JOIN tbl_invoice ON tbl_quot_inv_items.inv_id = tbl_invoice.inv_no 
-   
-");
-$stmt->execute();
-
-
-}
-
-                                    $rec=$stmt->fetchAll();
-                                    foreach($rec as $key)
-                                    {
-                                    
-             $techStmt = $conn->prepare("SELECT fname, lname FROM tbl_admin WHERE id = ?");
-    $techStmt->execute([$key['user']]);
-    $tech = $techStmt->fetch();
-                                    
-                                    ?>
-                                 <tr>
-                                    <th><?php echo $no;?></th>
-                                   <th><?php
-                                   
-                                    echo htmlspecialchars($tech['fname'] ?? '', ENT_QUOTES, 'UTF-8') . ' ' . 
-     htmlspecialchars($tech['lname'] ?? '', ENT_QUOTES, 'UTF-8'); 
-                                 
-                                   
-                                   ?></th>
-                                        <th><?php if( $key['exp']==0){echo 'Product- '; }elseif( $key['exp']==1){echo 'Service- ';} ?><?php echo htmlspecialchars($key['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></th>
-                                    
-                                        <th><?php echo $key['quantity'];?></th>
-    <!--                                      <th>-->
-    <!--                                      </?php-->
-    <!--                                     /   $techStmt5 = $conn->prepare("SELECT * FROM tbl_unit_grp WHERE id = ?");-->
-    <!--$techStmt5->execute([$key['unit']]);-->
-    <!--/$tech5 = $techStmt5->fetch();-->
-    <!--                                      echo $tech5['name'];?></th>-->
-                                        <th><?php echo $record_website['currency_symbol']. number_format1($key['rate'], 2, '.', ','); ?>-/</th>
-                                        <th><?php echo $record_website['currency_symbol']. number_format1($key['total'], 2, '.', ','); ?>-/</th>
-                                       
-                                     
-                                     
-                                 </tr>
-                                 <?php  $no++; } ?>
+<?php $no = 1; if (isset($_POST['search'])) { $stmt = $conn->prepare(" SELECT * FROM tbl_quot_inv_items INNER JOIN tbl_product ON tbl_product.id = tbl_quot_inv_items.product_id INNER JOIN tbl_invoice ON tbl_quot_inv_items.inv_id = tbl_invoice.inv_no WHERE tbl_invoice.user = ? AND tbl_invoice.delete_status = 0 AND tbl_product.delete_status = 0 AND tbl_quot_inv_items.delete_status = 0 "); $stmt->execute([$_POST['admin']]); } else { $stmt = $conn->prepare(" SELECT * FROM tbl_quot_inv_items INNER JOIN tbl_product ON tbl_product.id = tbl_quot_inv_items.product_id INNER JOIN tbl_invoice ON tbl_quot_inv_items.inv_id = tbl_invoice.inv_no WHERE tbl_invoice.delete_status = 0 AND tbl_product.delete_status = 0 AND tbl_quot_inv_items.delete_status = 0 "); $stmt->execute(); } $rec = $stmt->fetchAll(); foreach ($rec as $key) { $techStmt = $conn->prepare(" SELECT fname, lname FROM tbl_admin WHERE id = ? AND delete_status = 0 "); $techStmt->execute([$key['user']]); $tech = $techStmt->fetch(); ?> <tr> <th><?php echo $no; ?></th> <th> <?php echo htmlspecialchars($tech['fname'] ?? '', ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($tech['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </th> <th> <?php if ($key['exp'] == 0) { echo 'Product- '; } elseif ($key['exp'] == 1) { echo 'Service- '; } ?> <?php echo htmlspecialchars($key['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </th> <th><?php echo $key['quantity']; ?></th> <th><?php echo $record_website['currency_symbol'] . number_format1($key['rate'], 2, '.', ','); ?>-/</th> <th><?php echo $record_website['currency_symbol'] . number_format1($key['total'], 2, '.', ','); ?>-/</th> </tr> <?php $no++; } ?>
                                  
                                  
                                  

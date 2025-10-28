@@ -192,16 +192,48 @@ $stmt->execute();
 }
     }
 
-    if (isset($_POST['del_id'])) {
-      //$stmt = $conn->prepare("DELETE FROM customers WHERE id = :id");
-      $stmt = $conn->prepare("UPDATE tbl_admin SET delete_status=1 WHERE id=:id");
-      $stmt->bindParam(':id', $_POST['del_id']);
-      $stmt->execute();
+if (isset($_POST['del_id'])) {
+    $userId = $_POST['del_id'];
 
-      $_SESSION['success'] = "User Deleted Succesfully";
-      header('location:../view_user.php');
-      exit;
+    try {
+        $conn->beginTransaction();
+        $stmt = $conn->prepare("
+            UPDATE tbl_invoice 
+            SET delete_status = 1 
+            WHERE user = :userId
+        ");
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
 
+        $stmt = $conn->prepare("
+            UPDATE tbl_quot_inv_items 
+            SET delete_status = 1
+            WHERE inv_id IN (
+                SELECT inv_no FROM tbl_invoice WHERE user = :userId
+            )
+        ");
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+
+        $stmt = $conn->prepare("
+            UPDATE tbl_admin 
+            SET delete_status = 1 
+            WHERE id = :userId
+        ");
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+
+        $conn->commit();
+
+        $_SESSION['success'] = "User deleted successfully";
+        header('location:../view_user.php');
+        exit;
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $_SESSION['error'] = "Error deleting user: " . $e->getMessage();
+        header('location:../view_user.php');
+        exit;
+    }
 }
 
   } catch (PDOException $e) {

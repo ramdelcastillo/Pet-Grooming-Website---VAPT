@@ -97,9 +97,9 @@ if (isset($_POST['update'])) {
     $address = $_POST['address'];
     $dob = !empty($_POST['dob']) ? $_POST['dob'] : '0000-00-00';
 
-    // if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
-    //     $errors[] = 'Invalid First Name: Only letters and spaces allowed';
-    // }
+    if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
+        $errors[] = 'Invalid First Name: Only letters and spaces allowed';
+    }
     if (!preg_match("/^[a-zA-Z ]+$/", $lname)) {
         $errors[] = 'Invalid Last Name: Only letters and spaces allowed';
     }
@@ -205,7 +205,6 @@ if (isset($_POST['update'])) {
                   <div class="user-avatar-info">
                     <div class="m-b-20">
                       <div class="user-avatar-name">
-                        asdasd
 
                         <h2 class="mb-1">
                           <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>&nbsp;
@@ -230,7 +229,7 @@ if (isset($_POST['update'])) {
 
                       <label for="validationCustom03">First Name<span class="text-danger">*</span></label>
                       <input type="text" class="form-control" name="fname"
-                        value="<?=$result['fname']?>" required
+                        value="<?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
                         >
 
                       <div class="invalid-feedback">
