@@ -1,4 +1,4 @@
-a<?php
+<?php
 error_reporting(0);
 require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
@@ -67,7 +67,7 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                             
                             
                                 <div class="col-12 col-md-6">
-                                <label class="col-form-label text-sm-right">Percentage<span class="text-danger">*</span></label>
+                                <labe class="col-form-label text-sm-right">Percentage<span class="text-danger">*</span></label>
                               
                                  
 

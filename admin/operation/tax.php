@@ -20,6 +20,23 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     if (isset($_POST['btn_save'])) {
       $name = htmlspecialchars($_POST['name']);
+
+      $stmt = $conn->prepare("
+          SELECT EXISTS(
+              SELECT 1 FROM tbl_tax 
+              WHERE name = ? AND delete_status = 0
+          ) AS name_exists
+      ");
+
+      $stmt->execute([$name]);
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($result['name_exists']) {
+          $_SESSION['error'] = "Tax name already exists";
+          header('location:../tax.php');
+          exit;
+      }
+
       $status = htmlspecialchars($_POST['percentage']);
       $delete_status = 0;
 
@@ -36,6 +53,10 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           header('location:../tax.php');
           exit;
       }
+
+
+
+      
 
       $id= $_SESSION['id'];
   
@@ -56,6 +77,23 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       //$id=$_GET['id'];
       //echo "string";
       $name = htmlspecialchars($_POST['name']);
+
+      $stmt = $conn->prepare("
+          SELECT EXISTS(
+              SELECT 1 FROM tbl_tax 
+              WHERE name = ? AND delete_status = 0
+          ) AS name_exists
+      ");
+
+      $stmt->execute([$name]);
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($result['name_exists']) {
+          $_SESSION['error'] = "Tax name already exists";
+          header('location:../tax.php');
+          exit;
+      }
+
       $status = htmlspecialchars($_POST['percentage']);
 
       $percentage = (int) $status;
