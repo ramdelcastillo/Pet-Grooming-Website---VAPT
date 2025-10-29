@@ -38,28 +38,28 @@
                                            <div class="form-row">
                                             <div class="form-group col-md-6">
                                                 <label class=" control-label">Customer Name:<span class="text-danger">*</span></label>
-                                                   <input type="text" name="custname" class="form-control" data-provide=""  placeholder="Customer Name" value="<?php echo $customer['cust_name'];?>" required>
+                                                   <input type="text" name="custname" class="form-control" data-provide=""  placeholder="Customer Name" value="<?php echo htmlspecialchars($customer['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
                                             </div>
 
 
                                         <div class="form-group col-md-6">
                                                 <label class="control-label">Customer Mobile No:<span class="text-danger">*</span> </label>
                                         
-                                                    <input type="text" name="customer_mobno" class="form-control "  placeholder="Customer No" minlength="10" maxlength="10" pattern="^[0][1-9]\d{9}$|^[1-9]\d{9}$" value="<?php echo $customer['cust_mob'];?>" required>
+                                                    <input type="text" name="customer_mobno" class="form-control "  placeholder="Customer No" minlength="10" maxlength="10" pattern="^[0][1-9]\d{9}$|^[1-9]\d{9}$" value="<?php echo htmlspecialchars($customer['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
                                         </div>
                                       <div class="form-group col-md-6">
                                                 <label class="control-label">GST No.:<span class="text-danger"></span></label>
-                                                 <input type="text" class="form-control"  name="gstin"  placeholder="GST No." value="<?php echo $customer['gstin'];?>">
+                                                 <input type="text" class="form-control"  name="gstin"  placeholder="GST No." value="<?php echo htmlspecialchars($customer['gstin'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                         </div>
 
                                         <div class="form-group col-md-6">
                                                 <label class="control-label">Customer Email: <span class="text-danger"></span></label>
-                                                    <input type="text" name="c_email" class="form-control "  placeholder="Customer Email" value="<?php echo $customer['cust_email'];?>">
+                                                    <input type="text" name="c_email" class="form-control "  placeholder="Customer Email" value="<?php echo htmlspecialchars($customer['cust_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                                    
                                         </div>
                                         <div class="form-group col-md-6">
                                                 <label class="control-label">Customer Address:<span class="text-danger">*</span></label>
-                                                 <textarea class="form-control" name="c_address" style="height:70px;">   <?php echo $customer['cust_address'];?></textarea>
+                                                 <textarea class="form-control" name="c_address" style="height:70px;"><?php echo htmlspecialchars($customer['cust_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                 
                                         </div>
 

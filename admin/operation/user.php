@@ -159,24 +159,6 @@ $stmt->execute();
         $website_logo = $_POST['old_website_image'];
       }
 
-      $email = htmlspecialchars($_POST['email']);
-
-      $stmt = $conn->prepare("
-          SELECT EXISTS(
-              SELECT 1 FROM tbl_admin
-              WHERE email = ? AND delete_status = 0
-          ) AS email_exists
-      ");
-
-      $stmt->execute([$email]);
-      $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if ($result['email_exists']) {
-        $_SESSION['error'] = "Email already exists";
-        header('location:../view_user.php');
-        exit;
-      }
-
       function createSalt()
       {
         return '2123293dsj2hu2nikhiljdsd';
@@ -194,6 +176,24 @@ $stmt->execute();
         exit;
       }
       else {
+        $email = htmlspecialchars($_POST['email']);
+
+        $stmt = $conn->prepare("
+            SELECT EXISTS(
+                SELECT 1 FROM tbl_admin
+                WHERE email = ? AND delete_status = 0
+            ) AS email_exists
+        ");
+
+        $stmt->execute([$email]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['email_exists']) {
+          $_SESSION['error'] = "Email already exists";
+          header('location:../view_user.php');
+          exit;
+        }
+
         $passw = hash('sha256', $_POST['password']);
         $salt = createSalt();
         $password = hash('sha256', $salt . $passw);

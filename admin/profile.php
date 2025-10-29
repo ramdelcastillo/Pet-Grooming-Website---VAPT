@@ -15,6 +15,24 @@ $result = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <?php
 if (isset($_POST['update'])) {
+    $email = $_POST['email'];
+
+    $stmt = $conn->prepare("
+        SELECT EXISTS(
+           SELECT 1 FROM tbl_admin
+           WHERE email = ? AND delete_status = 0
+        ) AS email_exists
+    ");
+
+    $stmt->execute([$email]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($result['email_exists']) {
+      $_SESSION['error'] = "Email already exists";
+      header('Location: profile.php');
+      exit;
+    }
+
     $target_dir = "../assets/uploadImage/Profile/";
     $max_file_size = 10 * 1024 * 1024; // 10 MB
     $allowed_extensions = ['jpg', 'jpeg', 'png'];
@@ -207,7 +225,7 @@ if (isset($_POST['update'])) {
                       <div class="user-avatar-name">
 
                         <h2 class="mb-1">
-                          <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>&nbsp;
+                          <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                           <?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                         </h2>
 
@@ -217,7 +235,7 @@ if (isset($_POST['update'])) {
                     <div class="user-avatar-address">
                       <div class="mt-3">
                         <!-- <image class="profile-img" src="../assets/uploadImage/Profile/<?= $result['image'] ?>" style="height:35%;width:25%;">
-                 --> <input type="hidden" value="<?= $result['image'] ?>" name="old_website_image">
+                 --> <input type="hidden" value="<?php echo htmlspecialchars($result['image'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" name="old_website_image">
                         <input type="file" class="form-control" name="website_image" accept="image/jpeg/png">
 
                       </div>
@@ -292,7 +310,7 @@ if (isset($_POST['update'])) {
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 ">
                       <label for="validationCustom02">Address<span class="text-danger">*</span></label>
                       <textarea class="form-control" name="address"
-                        required><?=$result['address']?></textarea>
+                        required><?php echo htmlspecialchars($result['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
 
                       <div class="valid-feedback">
                       </div>

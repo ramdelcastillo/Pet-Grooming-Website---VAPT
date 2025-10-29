@@ -66,7 +66,7 @@ $groups = $stmt->fetchAll();
                                         value="<?= $product_group['id']; ?>">
 
                                     <input type="text" class="form-control" name="fname"
-                                        value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8');?>"
                                         required pattern="^[a-zA-Z]+$">
 
                                     <div class="invalid-feedback">
