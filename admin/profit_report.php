@@ -133,26 +133,27 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                     ?>
                                     <?php
-                                    if (isset($_POST['search'])) {
-                                         $ftot=0;
-                                    $fprof=0;
-                                        //\ print_r($_POST);
-                                        $product_id = $_POST['product_id'];
-                                        $p_group_name = $_POST['p_group_name'];
+                                        if (isset($_POST['search'])) {
+                                            $ftot = 0;
+                                            $fprof = 0;
+                                            $product_id = $_POST['product_id'];
+                                            $where = "WHERE delete_status = 0";
+                                            
+                                            if ($product_id != '') {
+                                                $where .= " AND product_id = '" . $product_id . "'";
+                                            }
 
-                                        $where = "WHERE delete_status= 0";
-                                        
-                                        if ($_POST['product_id'] != '') {
-                                            $where .= " AND product_id ='" . $product_id . "'";
+                                            $sql = "SELECT product_id, inv_id, SUM(rate) AS total_sale_price, SUM(quantity) AS total_qty 
+                                                    FROM tbl_quot_inv_items 
+                                                    $where 
+                                                    GROUP BY product_id, inv_id";
+                                        } else {
+                                            $sql = "SELECT product_id, inv_id, SUM(rate) AS total_sale_price, SUM(quantity) AS total_qty 
+                                                    FROM tbl_quot_inv_items 
+                                                    WHERE delete_status = 0 
+                                                    GROUP BY product_id, inv_id";
                                         }
-                                     
-                                     
-                                        $sql = "SELECT product_id,inv_id, SUM(rate) as total_sale_price,SUM(quantity) as total_qty FROM tbl_quot_inv_items " . $where . " group  by product_id";
-                                        // print_r($sql);
-                                    } else {
-                                       
-                                        $sql = "SELECT product_id,inv_id,SUM(rate) as total_sale_price,SUM(quantity) as total_qty  FROM tbl_quot_inv_items where delete_status=0 group  by product_id";
-                                    }
+
 
                                     $statement = $conn->prepare($sql);
                                     // print_r($statement);
@@ -169,9 +170,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                         $statement1->execute();
                                         $row1 = $statement1->fetch(PDO::FETCH_ASSOC);
                                         
-                                        
-                                        
-                                        
+                                                   
                                         $sql7 = "SELECT * FROM tbl_product_grp where id='" . $row1['group_id'] . "'";
 
 
