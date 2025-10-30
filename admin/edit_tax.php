@@ -67,7 +67,7 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                             
                             
                                 <div class="col-12 col-md-6">
-                                <labe class="col-form-label text-sm-right">Percentage<span class="text-danger">*</span></label>
+                                <label class="col-form-label text-sm-right">Percentage<span class="text-danger">*</span></label>
                               
                                  
 

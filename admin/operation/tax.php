@@ -54,10 +54,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           exit;
       }
 
-
-
-      
-
       $id= $_SESSION['id'];
   
       $stmt = $conn->prepare("INSERT INTO `tbl_tax`(`name`, `percentage`, `delete_status`) VALUES (:name,:percentage,:delete_status)");
@@ -74,55 +70,72 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     }
     if (isset($_POST['btn_edit'])) {
-      //$id=$_GET['id'];
-      //echo "string";
-      $name = htmlspecialchars($_POST['name']);
+      $id = $_POST['id'];
+      $name = $_POST['name'];
 
+      // Check if ID exists
       $stmt = $conn->prepare("
-          SELECT EXISTS(
-              SELECT 1 FROM tbl_tax 
-              WHERE name = ? AND delete_status = 0
-          ) AS name_exists
+          SELECT name FROM tbl_tax 
+          WHERE id = ? AND delete_status = 0
       ");
+      $stmt->execute([$id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      $stmt->execute([$name]);
-      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (!$record) {
+          $_SESSION['error'] = "Error";
+          header('location:../tax.php');
+          exit;
+      }
 
-      if ($result['name_exists']) {
+      $dbName = $record['name'];
+
+      // Check for duplicate names
+      $stmt = $conn->prepare("
+          SELECT id FROM tbl_tax 
+          WHERE name = ? AND id != ? AND delete_status = 0
+      ");
+      $stmt->execute([$name, $id]);
+      $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$duplicate) {
+          $status = htmlspecialchars($_POST['percentage']);
+
+          $percentage = (int) $status;
+
+          $percentage = filter_var(
+            $_POST['percentage'],
+            FILTER_VALIDATE_INT,
+            ["options" => ["min_range" => 0]]
+          );
+
+          if ($percentage === false) {
+              $_SESSION['error'] = "Invalid tax percentage";
+              header('location:../tax.php');
+              exit;
+          }
+
+          $stmt = $conn->prepare("UPDATE tbl_tax SET name=:name,percentage=:percentage  WHERE id=:id");
+          $stmt->bindParam(':name', $name);
+          $stmt->bindParam(':percentage', $status);
+          $stmt->bindParam(':id', $_POST['id']);
+
+          $execute = $stmt->execute();
+          if ($execute == true) {
+              $_SESSION['success'] = "Tax Updated Succesfully";
+              header('location:../tax.php');
+              exit;
+          }
+      }
+      elseif ($duplicate) {
           $_SESSION['error'] = "Tax name already exists";
           header('location:../tax.php');
           exit;
       }
-
-      $status = htmlspecialchars($_POST['percentage']);
-
-      $percentage = (int) $status;
-
-      $percentage = filter_var(
-        $_POST['percentage'],
-        FILTER_VALIDATE_INT,
-        ["options" => ["min_range" => 0]]
-      );
-
-      if ($percentage === false) {
-          $_SESSION['error'] = "Invalid tax percentage";
+      else {
+          $_SESSION['error'] = "Unexpected input detected.";
           header('location:../tax.php');
           exit;
       }
-
-      $stmt = $conn->prepare("UPDATE tbl_tax SET name=:name,percentage=:percentage  WHERE id=:id");
-      $stmt->bindParam(':name', $name);
-      $stmt->bindParam(':percentage', $status);
-      $stmt->bindParam(':id', $_POST['id']);
-
-
-      $execute = $stmt->execute();
-      if ($execute == true) {
-
-        $_SESSION['success'] = "Tax Updated Succesfully";
-      header('location:../tax.php');
-      exit;
-    }
   }
 
     if (isset($_POST['del_id'])) {
