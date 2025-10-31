@@ -16,155 +16,173 @@ $result = $stmt->fetch(PDO::FETCH_ASSOC);
 <?php
 if (isset($_POST['update'])) {
     $email = $_POST['email'];
+    $id = $_SESSION['id'];
 
     $stmt = $conn->prepare("
-        SELECT EXISTS(
-           SELECT 1 FROM tbl_admin
-           WHERE email = ? AND delete_status = 0
-        ) AS email_exists
+        SELECT email FROM tbl_admin
+        WHERE id = ? and delete_status = 0
     ");
 
-    $stmt->execute([$email]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([$id]);
+    $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result['email_exists']) {
-      $_SESSION['error'] = "Email already exists";
+    if (!$record) {
+      $_SESSION['error'] = "Error";
       header('Location: profile.php');
       exit;
     }
 
-    $target_dir = "../assets/uploadImage/Profile/";
-    $max_file_size = 10 * 1024 * 1024; // 10 MB
-    $allowed_extensions = ['jpg', 'jpeg', 'png'];
-    $allowed_mime_types = ['image/jpeg', 'image/png'];
+    $stmt = $conn->prepare("
+        SELECT id FROM tbl_admin
+        WHERE email = ? AND id != ? AND delete_status = 0
+      ");
+    $stmt->execute([$email, $id]);
+    $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $file_tmp  = $_FILES["website_image"]["tmp_name"];
-    $file_name = $_FILES["website_image"]["name"];
-    $file_size = $_FILES["website_image"]["size"];
+    if (!$duplicate) {
+      $target_dir = "../assets/uploadImage/Profile/";
+      $max_file_size = 10 * 1024 * 1024; // 10 MB
+      $allowed_extensions = ['jpg', 'jpeg', 'png'];
+      $allowed_mime_types = ['image/jpeg', 'image/png'];
 
-    $website_logo = $_POST['old_website_image']; 
+      $file_tmp  = $_FILES["website_image"]["tmp_name"];
+      $file_name = $_FILES["website_image"]["name"];
+      $file_size = $_FILES["website_image"]["size"];
 
-    $errors = []; 
-    $valid_file = true;
+      $website_logo = $_POST['old_website_image']; 
 
-    // --- FILE VALIDATION ---
-    if ($file_tmp != '') {
-        // 1. Check size
-        if ($file_size <= 0 || $file_size > $max_file_size) {
-            $errors[] = 'File size must be ≤ 10MB.';
-            $valid_file = false;
-        }
+      $errors = []; 
+      $valid_file = true;
 
-        // 2. Check extension
-        $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        if (!in_array($ext, $allowed_extensions)) {
-            $errors[] = 'Invalid file type, jpg or png only.';
-            $valid_file = false;
-        }
+      // --- FILE VALIDATION ---
+      if ($file_tmp != '') {
+          // 1. Check size
+          if ($file_size <= 0 || $file_size > $max_file_size) {
+              $errors[] = 'File size must be ≤ 10MB.';
+              $valid_file = false;
+          }
 
-        // 3. Check MIME type
-        if ($valid_file) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime_type = finfo_file($finfo, $file_tmp);
-            finfo_close($finfo);
-            if (!in_array($mime_type, $allowed_mime_types)) {
-                $errors[] = 'Invalid file type, jpg or png only.';
-                $valid_file = false;
-            }
-        }
+          // 2. Check extension
+          $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+          if (!in_array($ext, $allowed_extensions)) {
+              $errors[] = 'Invalid file type, jpg or png only.';
+              $valid_file = false;
+          }
 
-        // 4. Check magic number
-        if ($valid_file) {
-            $fp = fopen($file_tmp, 'rb');
-            $bytes = fread($fp, 8);
-            fclose($fp);
-            $hex = bin2hex($bytes);
+          // 3. Check MIME type
+          if ($valid_file) {
+              $finfo = finfo_open(FILEINFO_MIME_TYPE);
+              $mime_type = finfo_file($finfo, $file_tmp);
+              finfo_close($finfo);
+              if (!in_array($mime_type, $allowed_mime_types)) {
+                  $errors[] = 'Invalid file type, jpg or png only.';
+                  $valid_file = false;
+              }
+          }
 
-            if (($ext === 'jpg' || $ext === 'jpeg') && substr($hex, 0, 6) !== 'ffd8ff') {
-                $errors[] = 'Invalid file type, jpg or png only.';
-                $valid_file = false;
-            } elseif ($ext === 'png' && substr($hex, 0, 16) !== '89504e470d0a1a0a') {
-                $errors[] = 'Invalid file type, jpg or png only.';
-                $valid_file = false;
-            }
-        }
+          // 4. Check magic number
+          if ($valid_file) {
+              $fp = fopen($file_tmp, 'rb');
+              $bytes = fread($fp, 8);
+              fclose($fp);
+              $hex = bin2hex($bytes);
 
-        // 5. Move file if valid
-        if ($valid_file) {
-            $new_name = bin2hex(random_bytes(16)) . '.' . $ext;
-            $destination = $target_dir . $new_name;
-            if (move_uploaded_file($file_tmp, $destination)) {
-                if (!empty($_POST['old_website_image'])) {
-                    @unlink($target_dir . $_POST['old_website_image']);
-                }
-                $website_logo = $new_name;
-            } else {
-                $errors[] = 'Sorry, there was an error uploading your file.';
-                $valid_file = false;
-            }
-        }
+              if (($ext === 'jpg' || $ext === 'jpeg') && substr($hex, 0, 6) !== 'ffd8ff') {
+                  $errors[] = 'Invalid file type, jpg or png only.';
+                  $valid_file = false;
+              } elseif ($ext === 'png' && substr($hex, 0, 16) !== '89504e470d0a1a0a') {
+                  $errors[] = 'Invalid file type, jpg or png only.';
+                  $valid_file = false;
+              }
+          }
+
+          // 5. Move file if valid
+          if ($valid_file) {
+              $new_name = bin2hex(random_bytes(16)) . '.' . $ext;
+              $destination = $target_dir . $new_name;
+              if (move_uploaded_file($file_tmp, $destination)) {
+                  if (!empty($_POST['old_website_image'])) {
+                      @unlink($target_dir . $_POST['old_website_image']);
+                  }
+                  $website_logo = $new_name;
+              } else {
+                  $errors[] = 'Sorry, there was an error uploading your file.';
+                  $valid_file = false;
+              }
+          }
+      }
+
+      // --- INPUT VALIDATION ---
+      $fname = $_POST['fname'];
+      $lname = $_POST['lname'];
+      $email = $_POST['email'];
+      $username = $_POST['username'];
+      $gender = $_POST['gender'];
+      $contact = $_POST['contact'];
+      $address = $_POST['address'];
+      $dob = !empty($_POST['dob']) ? $_POST['dob'] : '0000-00-00';
+
+      if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
+          $errors[] = 'Invalid First Name: Only letters and spaces allowed';
+      }
+      if (!preg_match("/^[a-zA-Z ]+$/", $lname)) {
+          $errors[] = 'Invalid Last Name: Only letters and spaces allowed';
+      }
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+          $errors[] = 'Invalid Email Address';
+      }
+      if (!preg_match("/^(9\d{9})$/", $contact)) {
+          $errors[] = 'Invalid Contact Number: Must be 10 digits starting with 9';
+      }
+
+      // --- HANDLE ERRORS OR EXECUTE SQL ---
+      if (!empty($errors)) {
+          $_SESSION['error'] = implode('<br>', $errors);
+          header('Location: profile.php');
+          exit();
+      } else {
+          $sql = "UPDATE tbl_admin 
+                  SET fname = :fname,
+                      lname = :lname,
+                      email = :email,
+                      username = :username,
+                      gender = :gender,
+                      dob = :dob,
+                      contact = :contact,
+                      address = :address,
+                      image = :website_logo
+                  WHERE id = :id";
+
+          $stmt = $conn->prepare($sql);
+          $stmt->bindParam(':fname', $fname);
+          $stmt->bindParam(':lname', $lname);
+          $stmt->bindParam(':email', $email);
+          $stmt->bindParam(':username', $username);
+          $stmt->bindParam(':gender', $gender);
+          $stmt->bindParam(':dob', $dob);
+          $stmt->bindParam(':contact', $contact);
+          $stmt->bindParam(':address', $address);
+          $stmt->bindParam(':website_logo', $website_logo);
+          $stmt->bindParam(':id', $_SESSION['id']);
+
+          if ($stmt->execute()) {
+              $_SESSION['success'] = 'Profile Successfully Updated' . $_SESSION['id'];
+          } else {
+              $_SESSION['error'] = 'Something went wrong while updating your profile.';
+          }
+          header('Location: profile.php');
+          exit();
+      }
     }
-
-    // --- INPUT VALIDATION ---
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $email = $_POST['email'];
-    $username = $_POST['username'];
-    $gender = $_POST['gender'];
-    $contact = $_POST['contact'];
-    $address = $_POST['address'];
-    $dob = !empty($_POST['dob']) ? $_POST['dob'] : '0000-00-00';
-
-    if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
-        $errors[] = 'Invalid First Name: Only letters and spaces allowed';
+    elseif ($duplicate) {
+      $_SESSION['error'] = "Email already exists";
+      header('Location: profile.php');
+      exit;
     }
-    if (!preg_match("/^[a-zA-Z ]+$/", $lname)) {
-        $errors[] = 'Invalid Last Name: Only letters and spaces allowed';
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid Email Address';
-    }
-    if (!preg_match("/^(9\d{9})$/", $contact)) {
-        $errors[] = 'Invalid Contact Number: Must be 10 digits starting with 9';
-    }
-
-    // --- HANDLE ERRORS OR EXECUTE SQL ---
-    if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
-        header('Location: profile.php');
-        exit();
-    } else {
-        $sql = "UPDATE tbl_admin 
-                SET fname = :fname,
-                    lname = :lname,
-                    email = :email,
-                    username = :username,
-                    gender = :gender,
-                    dob = :dob,
-                    contact = :contact,
-                    address = :address,
-                    image = :website_logo
-                WHERE id = :id";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':fname', $fname);
-        $stmt->bindParam(':lname', $lname);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':gender', $gender);
-        $stmt->bindParam(':dob', $dob);
-        $stmt->bindParam(':contact', $contact);
-        $stmt->bindParam(':address', $address);
-        $stmt->bindParam(':website_logo', $website_logo);
-        $stmt->bindParam(':id', $_SESSION['id']);
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = 'Profile Successfully Updated';
-        } else {
-            $_SESSION['error'] = 'Something went wrong while updating your profile.';
-        }
-        header('Location: profile.php');
-        exit();
+    else {
+      $_SESSION['error'] = "Unexpected input detected.";
+      header('Location: profile.php');
+      exit;
     }
 }
 ?>

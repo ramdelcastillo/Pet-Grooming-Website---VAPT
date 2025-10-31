@@ -177,55 +177,73 @@ $stmt->execute();
       }
       else {
         $email = htmlspecialchars($_POST['email']);
+        $id = htmlspecialchars($_POST['id']);
 
         $stmt = $conn->prepare("
-            SELECT EXISTS(
-                SELECT 1 FROM tbl_admin
-                WHERE email = ? AND delete_status = 0
-            ) AS email_exists
+            SELECT email FROM tbl_admin
+            WHERE id = ? and delete_status = 0
         ");
 
-        $stmt->execute([$email]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute([$id]);
+        $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result['email_exists']) {
-          $_SESSION['error'] = "Email already exists";
+        if (!$record) {
+          $_SESSION['error'] = "Error";
           header('location:../view_user.php');
           exit;
         }
 
-        $passw = hash('sha256', $_POST['password']);
-        $salt = createSalt();
-        $password = hash('sha256', $salt . $passw);
+        $stmt = $conn->prepare("
+            SELECT id FROM tbl_admin
+            WHERE email = ? AND id != ? AND delete_status = 0
+          ");
+        $stmt->execute([$email, $id]);
+        $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$duplicate) {
+          $passw = hash('sha256', $_POST['password']);
+          $salt = createSalt();
+          $password = hash('sha256', $salt . $passw);
+
+          $stmt = $conn->prepare("UPDATE tbl_admin SET email=:email, role_id=:group_id, fname=:fname, lname=:lname, password=:password , project=:project, address=:address, contact=:contact WHERE id=:id");
+
+          $fname = htmlspecialchars($_POST['fname']);
+          $lname = htmlspecialchars($_POST['lname']);
+          
+          $group_id = htmlspecialchars($_POST['group_id']);
+          $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
+          $id = htmlspecialchars($_POST['id']); // Assuming $_POST['id'] is already sanitized or validated
+          
+          $stmt->bindParam(':fname', $fname);
+          $stmt->bindParam(':lname', $lname);
+          $stmt->bindParam(':email', $email);
+          $stmt->bindParam(':group_id', $group_id);
+          $stmt->bindParam(':password', $password);
+          $stmt->bindParam(':project', $_POST['project']);
+          $stmt->bindParam(':address', $_POST['address']);
+          $stmt->bindParam(':contact', $_POST['contact']);
+          $stmt->bindParam(':id', $id);
+          $stmt->execute();
+          
+
+          $execute = $stmt->execute();
+          if ($execute == true) {
+            $_SESSION['success'] = "User Updated Succesfully";
+            header('location:../view_user.php');
+            exit;
+          }
+        }
+        elseif ($duplicate) {
+          $_SESSION['error'] = "Email already exists";
+          header('location:../view_user.php');
+          exit;
+        }
+        else {
+          $_SESSION['error'] = "Unexpected input detected.";
+          header('location:../view_user.php');
+          exit;
+        }
       }
-
-      $stmt = $conn->prepare("UPDATE tbl_admin SET email=:email, role_id=:group_id, fname=:fname, lname=:lname, password=:password , project=:project, address=:address, contact=:contact WHERE id=:id");
-
-      $fname = htmlspecialchars($_POST['fname']);
-      $lname = htmlspecialchars($_POST['lname']);
-      
-      $group_id = htmlspecialchars($_POST['group_id']);
-      $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
-      $id = htmlspecialchars($_POST['id']); // Assuming $_POST['id'] is already sanitized or validated
-      
-      $stmt->bindParam(':fname', $fname);
-      $stmt->bindParam(':lname', $lname);
-      $stmt->bindParam(':email', $email);
-      $stmt->bindParam(':group_id', $group_id);
-      $stmt->bindParam(':password', $password);
-        $stmt->bindParam(':project', $_POST['project']);
-        $stmt->bindParam(':address', $_POST['address']);
-        $stmt->bindParam(':contact', $_POST['contact']);
-      $stmt->bindParam(':id', $id);
-      $stmt->execute();
-      
-
-      $execute = $stmt->execute();
-      if ($execute == true) {
-       $_SESSION['success'] = "User Updated Succesfully";
-      header('location:../view_user.php');
-      exit;
-}
     }
 
 if (isset($_POST['del_id'])) {
