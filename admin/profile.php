@@ -163,7 +163,7 @@ if (isset($_POST['update'])) {
           $stmt->bindParam(':contact', $contact);
           $stmt->bindParam(':address', $address);
           $stmt->bindParam(':website_logo', $website_logo);
-          $stmt->bindParam(':id', $_SESSION['id']);
+          $stmt->bindParam(':id', $id);
 
           if ($stmt->execute()) {
               $_SESSION['success'] = 'Profile Successfully Updated' . $_SESSION['id'];

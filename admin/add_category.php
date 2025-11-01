@@ -62,8 +62,8 @@
                                
                                     <div class="input-group">
                                         <select type="text" class="form-control" placeholder="" name="status" required="" id="">
-                                            <option value="Active">Active</option>
-                                            <option value="Deactive">Deactive</option>
+                                            <option value="1">Active</option>
+                                            <option value="2">Deactive</option>
                                         </select>
                                         <div class="input-group-append">
                                             <span class="input-group-text"><i class="fas fa-caret-down"></i></span>
