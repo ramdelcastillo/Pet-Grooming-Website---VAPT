@@ -6,14 +6,14 @@ error_reporting(0);
 session_start();
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
-  require_once '/var/www/html/vendor/autoload.php';  
-  $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
+  require_once '/var/www/html/vendor/autoload.php';
+  $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env');
   $dotenv->load();
 
   $servername = $_ENV['DB_HOST'];
-  $username   = $_ENV['DB_USER'];
-  $password  = $_ENV['DB_PASS'];
-  $dbname     = $_ENV['DB_NAME'];
+  $username = $_ENV['DB_USER'];
+  $password = $_ENV['DB_PASS'];
+  $dbname = $_ENV['DB_NAME'];
 
   try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -35,7 +35,7 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       }
 
 
-      if (empty($_POST['password']) || empty($_POST['cpassword'])){
+      if (empty($_POST['password']) || empty($_POST['cpassword'])) {
         $_SESSION['error'] = "Password fields must not be empty";
         header('location:../view_user.php');
         exit;
@@ -65,6 +65,22 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit;
       }
 
+      $group_id = htmlspecialchars($_POST['group_id']);
+
+      $stmt = $conn->prepare("
+            SELECT name FROM tbl_groups
+            WHERE id = ? AND delete_status = 0
+          ");
+
+      $stmt->execute([$group_id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../view_user.php');
+        exit;
+      }
+
 
       $passw = hash('sha256', $_POST['password']);
 
@@ -89,55 +105,54 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       )");
 
 
-$fname = htmlspecialchars($_POST['fname']);
-$lname = htmlspecialchars($_POST['lname']);
-$email = htmlspecialchars($_POST['email']);
-$group_id = htmlspecialchars($_POST['group_id']);
-$role = htmlspecialchars($role); // Assuming $role is already sanitized or validated
-$password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
-$username = htmlspecialchars($_POST['fname'] . $_POST['lname']);
-$gender = 'Male';
-$dob = '';
-$image = '';
-$created_on = date('Y-m-d');
-$bank_name = '';
-$acc_name = '';
-$acc_no = '';
-$amount = 0;
-$total_amount = '';
-$app_code = 0;
-$delete_status = 0;
-$admin_user = 0;
-$gstin = '';
+      $fname = htmlspecialchars($_POST['fname']);
+      $lname = htmlspecialchars($_POST['lname']);
+      $role = htmlspecialchars($role); // Assuming $role is already sanitized or validated
+      $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
+      $username = htmlspecialchars($_POST['fname'] . $_POST['lname']);
+      $gender = '';
+      $dob = '';
+      $image = '';
+      $created_on = date('Y-m-d');
+      $bank_name = '';
+      $acc_name = '';
+      $acc_no = '';
+      $amount = 0;
+      $total_amount = '';
+      $app_code = 0;
+      $delete_status = 0;
+      $admin_user = 0;
+      $gstin = '';
+      $project = NULL;
 
 
-$stmt->bindParam(':fname', $fname);
-$stmt->bindParam(':lname', $lname);
-$stmt->bindParam(':email', $email);
-$stmt->bindParam(':group_id', $group_id);
-$stmt->bindParam(':role', $role);
-$stmt->bindParam(':password', $password);
-$stmt->bindParam(':project', $_POST['project']);
-$stmt->bindParam(':address', $_POST['address']);
-$stmt->bindParam(':contact', $_POST['contact']);
-$stmt->bindParam(':username', $username);
-$stmt->bindParam(':gender', $gender);
-$stmt->bindParam(':dob', $dob);
-$stmt->bindParam(':image', $image);
-$stmt->bindParam(':created_on', $created_on);
-$stmt->bindParam(':bank_name', $bank_name);
-$stmt->bindParam(':acc_name', $acc_name);
-$stmt->bindParam(':acc_no', $acc_no);
-$stmt->bindParam(':amount', $amount);
-$stmt->bindParam(':total_amount', $total_amount);
-$stmt->bindParam(':app_code', $app_code);
-$stmt->bindParam(':delete_status', $delete_status);
-$stmt->bindParam(':admin_user', $admin_user);
-$stmt->bindParam(':gstin', $gstin);
-$stmt->execute();
+      $stmt->bindParam(':fname', $fname);
+      $stmt->bindParam(':lname', $lname);
+      $stmt->bindParam(':email', $email);
+      $stmt->bindParam(':group_id', $group_id);
+      $stmt->bindParam(':role', $role);
+      $stmt->bindParam(':password', $password);
+      $stmt->bindParam(':project', $project);
+      $stmt->bindParam(':address', $_POST['address']);
+      $stmt->bindParam(':contact', $_POST['contact']);
+      $stmt->bindParam(':username', $username);
+      $stmt->bindParam(':gender', $gender);
+      $stmt->bindParam(':dob', $dob);
+      $stmt->bindParam(':image', $image);
+      $stmt->bindParam(':created_on', $created_on);
+      $stmt->bindParam(':bank_name', $bank_name);
+      $stmt->bindParam(':acc_name', $acc_name);
+      $stmt->bindParam(':acc_no', $acc_no);
+      $stmt->bindParam(':amount', $amount);
+      $stmt->bindParam(':total_amount', $total_amount);
+      $stmt->bindParam(':app_code', $app_code);
+      $stmt->bindParam(':delete_status', $delete_status);
+      $stmt->bindParam(':admin_user', $admin_user);
+      $stmt->bindParam(':gstin', $gstin);
+      $stmt->execute();
 
 
-     $_SESSION['success'] = "User Added Succesfully";
+      $_SESSION['success'] = "User Added Succesfully";
       header('location:../view_user.php');
       exit;
     }
@@ -164,7 +179,7 @@ $stmt->execute();
         return '2123293dsj2hu2nikhiljdsd';
       }
 
-      if (empty($_POST['password']) || empty($_POST['cpassword'])){
+      if (empty($_POST['password']) || empty($_POST['cpassword'])) {
         $_SESSION['error'] = "Password fields must not be empty";
         header('location:../view_user.php');
         exit;
@@ -174,8 +189,7 @@ $stmt->execute();
         $_SESSION['error'] = "Mismatching passwords";
         header('location:../view_user.php');
         exit;
-      }
-      else {
+      } else {
         $email = htmlspecialchars($_POST['email']);
         $id = htmlspecialchars($_POST['id']);
 
@@ -196,11 +210,27 @@ $stmt->execute();
         $stmt = $conn->prepare("
             SELECT id FROM tbl_admin
             WHERE email = ? AND id != ? AND delete_status = 0
-          ");
+        ");
         $stmt->execute([$email, $id]);
         $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$duplicate) {
+          $group_id = htmlspecialchars($_POST['group_id']);
+
+          $stmt = $conn->prepare("
+            SELECT name FROM tbl_groups
+            WHERE id = ? AND delete_status = 0
+          ");
+
+          $stmt->execute([$group_id]);
+          $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+          if (!$record) {
+            $_SESSION['error'] = "Error";
+            header('location:../view_user.php');
+            exit;
+          }
+
           $passw = hash('sha256', $_POST['password']);
           $salt = createSalt();
           $password = hash('sha256', $salt . $passw);
@@ -209,11 +239,9 @@ $stmt->execute();
 
           $fname = htmlspecialchars($_POST['fname']);
           $lname = htmlspecialchars($_POST['lname']);
-          
-          $group_id = htmlspecialchars($_POST['group_id']);
           $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
           $id = htmlspecialchars($_POST['id']); // Assuming $_POST['id'] is already sanitized or validated
-          
+
           $stmt->bindParam(':fname', $fname);
           $stmt->bindParam(':lname', $lname);
           $stmt->bindParam(':email', $email);
@@ -224,7 +252,7 @@ $stmt->execute();
           $stmt->bindParam(':contact', $_POST['contact']);
           $stmt->bindParam(':id', $id);
           $stmt->execute();
-          
+
 
           $execute = $stmt->execute();
           if ($execute == true) {
@@ -232,13 +260,11 @@ $stmt->execute();
             header('location:../view_user.php');
             exit;
           }
-        }
-        elseif ($duplicate) {
+        } elseif ($duplicate) {
           $_SESSION['error'] = "Email already exists";
           header('location:../view_user.php');
           exit;
-        }
-        else {
+        } else {
           $_SESSION['error'] = "Unexpected input detected.";
           header('location:../view_user.php');
           exit;
@@ -246,10 +272,10 @@ $stmt->execute();
       }
     }
 
-if (isset($_POST['del_id'])) {
-    $userId = $_POST['del_id'];
+    if (isset($_POST['del_id'])) {
+      $userId = $_POST['del_id'];
 
-    try {
+      try {
         $conn->beginTransaction();
         $stmt = $conn->prepare("
             UPDATE tbl_invoice 
@@ -282,13 +308,13 @@ if (isset($_POST['del_id'])) {
         $_SESSION['success'] = "User deleted successfully";
         header('location:../view_user.php');
         exit;
-    } catch (Exception $e) {
+      } catch (Exception $e) {
         $conn->rollBack();
         $_SESSION['error'] = "Error deleting user: " . $e->getMessage();
         header('location:../view_user.php');
         exit;
+      }
     }
-}
 
   } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
