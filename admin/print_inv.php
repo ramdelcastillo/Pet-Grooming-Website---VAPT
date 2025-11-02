@@ -149,7 +149,7 @@ function number_format1($number, $decimal = 2)
          </td>
          <td colspan="4">
             <div style="display: flex;justify-content: space-between;">
-               <p><strong>Invoice No</strong><br>#<?= $invoice['inv_no']; ?></p>
+               <p><strong>Invoice No</strong><br>#<?php echo htmlspecialchars($invoice['inv_no'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
                <p><strong>Invoice Date</strong><br><?= date("d-m-Y", strtotime($invoice['build_date'])); ?></p>
                <p><strong>Due Date</strong><br><?= date("d-m-Y", strtotime($invoice['due_date'])); ?></p>
             </div>
@@ -224,16 +224,16 @@ function number_format1($number, $decimal = 2)
             <tr class="border-bottom">
                <td><?= $no ?></td>
                <td>
-                  <strong><?= $row1['name'] ?></strong><br>
+                  <strong><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8');?></strong><br>
                   <!--IME/Serial No: LG73624780LED1623453-->
                </td>
-               <td><?= $row1['hsn'] ?></td>
+               <td><?php echo htmlspecialchars($row1['hsn'] ?? '', ENT_QUOTES, 'UTF-8');?></td>
                <td><?php if ($row1['exp'] == '0') {
                   echo date("d-m-Y", strtotime($row1['exp_date']));
                } else {
                   echo 'No Expiry';
                } ?></td>
-               <td><?= $row2['quantity'] ?>PCS</td>
+               <td><?php echo htmlspecialchars($row2['quantity'] ?? '', ENT_QUOTES, 'UTF-8');?>PCS</td>
                <td> <?php echo $web['currency_symbol'] . " " . number_format1($row1['unit_price'], 2); ?></td>
                <td> <?php echo $web['currency_symbol'] . " " . number_format1(($row1['unit_price'] * $row2['quantity']), 2); ?>
                </td>
@@ -267,7 +267,11 @@ function number_format1($number, $decimal = 2)
                ?>
                <tr class="td">
                   <td></td>
-                  <td><strong><?php echo $cgstax = $tax['name']; ?>@<?php echo $cgst = $tax['percentage']; ?>%</strong></td>
+                  <?php 
+  $cgstax = $tax['name'];
+  $cgst   = $tax['percentage'];
+?>
+                  <td><strong><?php echo htmlspecialchars($cgstax ?? '', ENT_QUOTES, 'UTF-8');?>@<?php echo htmlspecialchars($cgst ?? '', ENT_QUOTES, 'UTF-8');?>%</strong></td>
                   <td>-</td>
                   <td>-</td>
                   <td>-</td>
@@ -391,7 +395,7 @@ function number_format1($number, $decimal = 2)
                      $stax = $conn->prepare("SELECT * FROM tbl_tax where id='" . $pro_med . "' AND delete_status = '0'");
                      $stax->execute();
                      $tax = $stax->fetch(); ?>
-                     <th colspan="2" class="bg"> <?php echo $tax['name']; ?></th>
+                     <th colspan="2" class="bg"> <?php echo htmlspecialchars($tax['name'] ?? '', ENT_QUOTES, 'UTF-8');?></th>
                   <?php
                   }
                   ?>
@@ -420,7 +424,7 @@ function number_format1($number, $decimal = 2)
                      $tax = $stax->fetch();
                      $cgst = $tax['percentage'];
                      ?>
-                     <td style="text-align:end"><?php echo $tax['percentage']; ?> %</td>
+                     <td style="text-align:end"><?php echo htmlspecialchars($tax['percentage'] ?? '', ENT_QUOTES, 'UTF-8');?> %</td>
                      <td style="text-align:end">
                         <?php echo $web['currency_symbol'];
                         echo number_format1($cgst_amt = ($row2['quantity'] * $row1['unit_price'] * $cgst / 100), 2); ?>
@@ -454,7 +458,7 @@ function number_format1($number, $decimal = 2)
             <h3>Bank Details</h3>
             <p><strong>Name:</strong> <?php echo htmlspecialchars($web['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
             <p><strong>IFSC Code:</strong> <?php echo htmlspecialchars($web['ifsc'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
-            <p><strong>Account No:</strong> <?= $web['acc_no']; ?></p>
+            <p><strong>Account No:</strong> <?php echo htmlspecialchars($web['acc_no'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
             <p><strong>Bank:</strong> <?php echo htmlspecialchars($web['branch'] ?? '', ENT_QUOTES, 'UTF-8'); ?>,<?php echo htmlspecialchars($web['badd'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
          </td>
          <td class="qr-code" style="display:flex;justify-content:space-between;height:35vh;align-items:center">
@@ -463,7 +467,7 @@ function number_format1($number, $decimal = 2)
                <!--<p><strong>UPI ID:</strong> viniprasad1989-1@okhdfcbank</p>-->
                <p>Google Pay | Paytm | UPI</p>
             </div>
-            <img src="../assets/uploadImage/Logo/<?php echo $web['qr']; ?>" alt="QR Code" width="80px" height="80px">
+            <img src="../assets/uploadImage/Logo/<?php echo htmlspecialchars($web['qr'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" alt="QR Code" width="80px" height="80px">
          </td>
       </tr>
       <tr>

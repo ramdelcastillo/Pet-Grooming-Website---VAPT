@@ -111,15 +111,15 @@ $ftot=0;
                                         <tr>
                                             <td><?= $no; ?></td>
                                           
-                                            <td><?= $item['inv_no']; ?></td>
+                                            <td><?php echo htmlspecialchars($item['inv_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             
                                             
-                                            <td><?= $rt2['name']; ?></td>
+                                            <td><?php echo htmlspecialchars($rt2['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             
                                             
                                             <td><?php
                                  
-                                    echo $res['quantity']; ?>
+                                    echo htmlspecialchars($res['quantity'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                             
                                             
                                             </td>

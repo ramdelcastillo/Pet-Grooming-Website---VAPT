@@ -81,20 +81,20 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                     <label for="validationCustom03">Serial No<span class="text-danger">*</span></label>
 
-                                    <input type="text" name="pid" value="<?= $product['pid']; ?>" class="form-control" placeholder="Product Serial No" required="">
+                                    <input type="text" name="pid" value="<?php echo htmlspecialchars($product['pid'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="Product Serial No" required="">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">Name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="name" value="<?= $product['name']; ?>" required placeholder="Product Name">
+                                    <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES, 'UTF-8');?>" required placeholder="Product Name">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">HSN</label>
-                                    <input type="text" class="form-control" name="hsn" value="<?= $product['hsn']; ?>" required placeholder="Product HSN">
+                                    <input type="text" class="form-control" name="hsn" value="<?php echo htmlspecialchars($product['hsn'] ?? '', ENT_QUOTES, 'UTF-8');?>" required placeholder="Product HSN">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
@@ -124,7 +124,7 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                             <option value="<?php echo $id; ?>" <?php if ($id == $product['group_id']) {
                                                                                     echo "Selected";
-                                                                                } ?>><?php echo $name; ?></option>
+                                                                                } ?>><?php echo htmlspecialchars($name ?? '', ENT_QUOTES, 'UTF-8');?></option>
                                         <?php
                                         }
 
@@ -134,13 +134,13 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Investment Cost<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="purchase_price" name="purchase_price" oninput="calculateGST()" value="<?= $product['purchase_price']; ?>" required required placeholder="Product Purchase Cost">
+                                    <input type="number" class="form-control" id="purchase_price" name="purchase_price" oninput="calculateGST()" value="<?php echo htmlspecialchars($product['purchase_price'] ?? '', ENT_QUOTES, 'UTF-8');?>" required required placeholder="Product Purchase Cost">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Selling Cost<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="unit_price" id="unit_price" oninput="calculateGST()" value="<?= $product['unit_price']; ?>" required required placeholder="Product Selling Cost">
+                                    <input type="number" class="form-control" name="unit_price" id="unit_price" oninput="calculateGST()" value="<?php echo htmlspecialchars($product['unit_price'] ?? '', ENT_QUOTES, 'UTF-8');?>" required required placeholder="Product Selling Cost">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
@@ -154,7 +154,7 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                         </div>
-                                        <textarea class="form-control" required name="details" style="height:100px;" placeholder="Product Description"><?= $product['details']; ?></textarea>
+                                        <textarea class="form-control" required name="details" style="height:100px;" placeholder="Product Description"><?php echo htmlspecialchars($product['details'] ?? '', ENT_QUOTES, 'UTF-8');?></textarea>
                                         <div class="invalid-feedback">
                                         </div>
                                     </div>
@@ -195,8 +195,8 @@ $id1 = $res['id'];
 
 $productArray = explode(',', $product1);
 ?>
-    <option value="<?php echo $res['id']; ?>" data-percentage="<?php echo $res['percentage']; ?>" <?php if(in_array($id1, $productArray)){ echo 'selected'; } ?> >
-        <?php echo $res['name']; ?> (<?php echo $res['percentage']; ?>%)
+    <option value="<?php echo $res['id']; ?>" data-percentage="<?php echo htmlspecialchars($res['percentage'] ?? '', ENT_QUOTES, 'UTF-8');?>" <?php if(in_array($id1, $productArray)){ echo 'selected'; } ?> >
+        <?php echo htmlspecialchars($res['name'] ?? '', ENT_QUOTES, 'UTF-8');?> (<?php echo htmlspecialchars($res['percentage'] ?? '', ENT_QUOTES, 'UTF-8');?>%)
     </option>
 <?php } ?>
                               
@@ -213,14 +213,14 @@ $productArray = explode(',', $product1);
                                                 
                                                   <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2" id="purchase_tax" style="display: <?php echo ($product['exp'] == '1') ? 'none' : $product['purchase_gst']; ?>;">
                                     <label for="validationCustom04">Cost of Purchase After GST </label>
-                                    <input type="text" class="form-control" id="purchase_gst" name="purchase_gst" value="<?= $product['purchase_gst']; ?>" required placeholder="Product Name" readonly="">
+                                    <input type="text" class="form-control" id="purchase_gst" name="purchase_gst" value="<?php echo htmlspecialchars($product['purchase_gst'] ?? '', ENT_QUOTES, 'UTF-8');?>" required placeholder="Product Name" readonly="">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
                                 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2" id="selling_tax" style="display: <?php echo ($product['exp'] == '1') ? 'none' : $product['selling_gst']; ?>;">
                                     <label for="validationCustom04">Cost of Selling After GST </label>
-                                    <input type="text" class="form-control" id="selling_gst" name="selling_gst" value="<?= $product['selling_gst']; ?>" required placeholder="Product Name" readonly="">
+                                    <input type="text" class="form-control" id="selling_gst" name="selling_gst" value="<?php echo htmlspecialchars($product['selling_gst'] ?? '', ENT_QUOTES, 'UTF-8');?>" required placeholder="Product Name" readonly="">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>

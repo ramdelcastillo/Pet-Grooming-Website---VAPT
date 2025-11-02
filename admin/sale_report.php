@@ -182,7 +182,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                             $stmt2->execute([$item['customer_id']]);
                                             //  print_r($stmt2);
                                             $record2 = $stmt2->fetch();
-                                            echo $record2['cust_mob']; ?></td>
+                                            echo htmlspecialchars($record2['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
 
 
                                             <td>
@@ -192,7 +192,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                                 $stmt2->execute([$item['customer_id']]);
                                                 //  print_r($stmt2);
                                                 $record2 = $stmt2->fetch();
-                                                echo $record2['cust_name']; ?>
+                                                echo htmlspecialchars($record2['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
 
 
                                             </td>

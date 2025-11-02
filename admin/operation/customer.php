@@ -120,6 +120,8 @@ if(isset($_POST['btn_update']))
 {
   //$id=$_GET['id'];
   //echo "string";
+
+  // WILL ADD VALIDATION
  
   $stmt = $conn->prepare("UPDATE tbl_customer SET cust_name=:cust_name,cust_mob=:cust_mob,cust_email=:cust_email,cust_address=:cust_address , state=:state ,gstin=:gstin WHERE cust_id=:cust_id");
   /*$sql = "UPDATE candidate SET fname=:fname,lname=:lname,ward=:ward,age=:age,gender=:gender,city=:city,qualification=:qualification,m_status=:m_status,image=:website_logo WHERE id='".$_GET['id']."'";

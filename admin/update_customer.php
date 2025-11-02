@@ -81,7 +81,7 @@ $rec=  $statement->fetchAll();
                                                      
    foreach($rec as $state )
    { ?>
-                        <option value="<?php echo $state['id']; ?>" <?php if($state['id']==$customer['state']){echo 'selected'; } ?> ><?php echo $state['name']; ?></option>
+                        <option value="<?php echo htmlspecialchars($state['id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" <?php if($state['id']==$customer['state']){echo 'selected'; } ?> ><?php echo htmlspecialchars($state['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
                     <?php } ?>
  
 </select>

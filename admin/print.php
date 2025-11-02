@@ -85,13 +85,13 @@ $web = $statement->fetch(PDO::FETCH_ASSOC);
                     <div class="card">
                         <div class="card-header p-4">
                             <div class="float-left">
-                                <img src="../assets/uploadImage/Logo/<?php echo $web['logo']; ?>" class="img-responsive" style="width: 300px;">
+                                <img src="../assets/uploadImage/Logo/<?php echo htmlspecialchars($web['logo'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="img-responsive" style="width: 300px;">
                             </div>
                             <div class="mr-5 text-center">
-                                <h3><?= $web['title']; ?></h3>
+                                <h3><?php echo htmlspecialchars($web['title'] ?? '', ENT_QUOTES, 'UTF-8');?></h3>
                             </div>
                             <div class="float-right">
-                                <h3 class="mb-0">Invoice #<?= $invoice['inv_no']; ?></h3>
+                                <h3 class="mb-0">Invoice #<?php echo htmlspecialchars($invoice['inv_no'] ?? '', ENT_QUOTES, 'UTF-8');?></h3>
                                 Date:<?= date("d-m-Y", strtotime($invoice['build_date'])); ?>
 
                             </div>
@@ -180,7 +180,7 @@ $ftax=0;
                                                 <td class="left strong"><?php if($row1['exp']==0){ echo 'Product- ';}else if($row1['exp']==1){ echo 'Service- ';} ?><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td class="left"><?php echo htmlspecialchars($row1['details'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <!--<td class="right"></?= $key3['name'] ?></td>-->
-                                                <td class="center"><?= $row2['quantity'] ?></td>
+                                                <td class="center"><?php echo htmlspecialchars($row2['quantity'] ?? '', ENT_QUOTES, 'UTF-8');?></td>
                                              <td class="right">
     <?php echo $web['currency_symbol'] . " " . number_format($row1['unit_price'], 2); ?>
 </td>
@@ -298,7 +298,7 @@ $ftax=0;
                             <p class="mb-0 text-right">Signtaure</p><br>
                             <p class="text-right">
                             
-                            <img src="../assets/uploadImage/Logo/<?php echo $web['sign']; ?>" class="img-responsive" style="width: 150px;">
+                            <img src="../assets/uploadImage/Logo/<?php echo htmlspecialchars($web['sign'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="img-responsive" style="width: 150px;">
                             </p>
                         </div>
                     </div>

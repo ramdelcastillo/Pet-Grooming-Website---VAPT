@@ -86,10 +86,10 @@ function number_format1($number, $decimal = 2) {
             </div>
             <div class="d-flex justify-content-between">
                <div>
-                  <p class="mb-0"><b><?= $result['fname']; ?>&nbsp;<?= $result['lname']; ?></b></p>
-                  <p class="mb-0"><?= $result['address'] ?></p>
-                  <p class="mb-0">Email: <?= $result['email'] ?></p>
-                  <p class="mb-0"><?= $result['contact'] ?></p>
+                  <p class="mb-0"><b><?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8');?>&nbsp;<?php echo htmlspecialchars($result['lname'] ?? '', ENT_QUOTES, 'UTF-8');?></b></p>
+                  <p class="mb-0"><?php echo htmlspecialchars($result['address'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0">Email: <?php echo htmlspecialchars($result['email'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0"><?php echo htmlspecialchars($result['contact'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
                </div>
                <div>
                    
@@ -101,10 +101,11 @@ function number_format1($number, $decimal = 2) {
                                     $stmt2->execute([$invoice['customer_id']]);
                                    // print_r($stmt2);exit;
                                     $record2 = $stmt2->fetch();
-                                    echo $record2['cust_name']; ?></b></p>
-                  <p class="mb-0 text-right"><?= $invoice['c_address']; ?></p>
-                  <p class="mb-0 text-right"><?= $invoice['customer_no']; ?></p>
-                  <p class="mb-0 text-right"><?= $invoice['c_email']; ?></p>
+                                    echo htmlspecialchars($record2['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></b></p>
+                  <p class="mb-0 text-right"><?php echo htmlspecialchars($invoice['c_address'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0 text-right"><?php echo htmlspecialchars($invoice['customer_no'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0 text-right"><?= $invoice['c_email']; ?></p> 
+                  <!-- WILL REVISE SQL STATEMENT -->
                </div>
             </div>
             <div class="text-center">

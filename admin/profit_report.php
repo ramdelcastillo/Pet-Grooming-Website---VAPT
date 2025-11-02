@@ -185,9 +185,9 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                              <td><?= $item['inv_id']; ?></td>
-                                            <td><?= $row1['name']; ?></td>
-                                            <td><?= $row7['name']; ?></td>
+                                              <td><?php echo htmlspecialchars($item['inv_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?php echo htmlspecialchars($row7['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo $record_website['currency_symbol'] . number_format1($row1['purchase_gst'], 2, '.', ','); ?>-/</td>
                                          <td><?php echo $record_website['currency_symbol'] . number_format1($row1['selling_gst'], 2, '.', ','); ?>-/</td>
                                             <td><?= $item['total_qty']; ?></td>

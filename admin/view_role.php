@@ -91,7 +91,7 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                            <td><?= $name; ?></td>
+                                            <td><?php echo htmlspecialchars($name ?? '', ENT_QUOTES, 'UTF-8');?></td>
                                              <?php if (in_array('Delete Roles', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Roles', $userroles)) { ?> 
                                             <td>
 

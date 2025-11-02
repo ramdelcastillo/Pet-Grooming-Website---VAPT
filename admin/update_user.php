@@ -63,7 +63,7 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">First name<span class="text-danger">*</span></label>
                                     <input type="hidden" class="form-control " name="id"
-                                        value="<?= $product_group['id']; ?>">
+                                        value="<?php echo htmlspecialchars($product_group['id'] ?? '', ENT_QUOTES, 'UTF-8');?>">
 
                                     <input type="text" class="form-control" name="fname"
                                         value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8');?>"
@@ -112,9 +112,9 @@ $groups = $stmt->fetchAll();
                                         value="">
 
                                         <?php foreach ($groups as $value) { ?>
-                                            <option value="<?= $value['id'] ?>" <?php if ($product_group['role_id'] == $value['id']) {
+                                            <option value="<?php echo htmlspecialchars($value['id'] ?? '', ENT_QUOTES, 'UTF-8');?>" <?php if ($product_group['role_id'] == $value['id']) {
                                                   echo "selected";
-                                              } ?>><?= $value['name'] ?></option>
+                                              } ?>><?php echo htmlspecialchars($value['name'] ?? '', ENT_QUOTES, 'UTF-8');?></option>
                                         <?php } ?>
                                     </select>
                                     <div class="valid-feedback">

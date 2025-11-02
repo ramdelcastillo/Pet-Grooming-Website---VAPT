@@ -30,13 +30,13 @@ require_once('../assets/constants/fetch-my-info.php');
                                  $cust = $stat->fetch();
                         ?>
                         <form id="add-result" class="sign-in-form mt-32 add_customer row">
-                            <input type="hidden" class="form-control " name="id" value="<?= $product['inv_no']; ?>">
-                            <input type="hidden" class="form-control " name="paid_amt" value="<?= $product['paid_amt']; ?>">
+                            <input type="hidden" class="form-control " name="id" value="<?php echo htmlspecialchars($product['inv_no'] ?? '', ENT_QUOTES, 'UTF-8');?>">
+                            <input type="hidden" class="form-control " name="paid_amt" value="<?php echo htmlspecialchars($product['paid_amt'] ?? '', ENT_QUOTES, 'UTF-8');?>">
 
                             <?php $current_date = date('Y-m-d'); ?>
                             <div class="mb-3 col-md-6">
                                 <label class="txt-lbl">Customer Name <span class="text-danger">*</span></label>
-                                <input type="text" id="text" name="cust_name" value="<?php echo $cust['cust_name']; ?>" class="form-control">
+                                <input type="text" id="text" name="cust_name" value="<?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="form-control">
                                 <div class="form_bottom_boder"></div>
                             </div>
                            
@@ -54,7 +54,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                 $row = $statement->fetch(PDO::FETCH_ASSOC);
                                 $new = 10000 + $row['cnt'] + 1;
                                 ?>
-                                <input type="text" value="<?php echo $product['inv_no']; ?>" name="inv_no" value="<?php echo sprintf('%04d', intval($new)) ?>" class="form-control" required readonly>
+                                <input type="text" value="<?php echo htmlspecialchars($product['inv_no'] ?? '', ENT_QUOTES, 'UTF-8');?>" name="inv_no" value="<?php echo sprintf('%04d', intval($new)) ?>" class="form-control" required readonly>
                                 <div class="form_bottom_boder"></div>
                             </div>
                             <input type="hidden" name="subtotal" id="subtotal" class="form-control" value="<?php echo $product['subtotal']; ?>" placeholder="Subtotal" readonly="">

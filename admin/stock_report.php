@@ -48,7 +48,7 @@ require_once('../assets/constants/fetch-my-info.php');
                       foreach ($record as $res) { ?>
 
                         <option value="<?php echo $res['id'] ?>">
-                        <?php echo $res['name'];
+                        <?echo htmlspecialchars($res['name'] ?? '', ENT_QUOTES, 'UTF-8');
                       } ?>
                         </option>      
                                         </select>
@@ -112,7 +112,7 @@ require_once('../assets/constants/fetch-my-info.php');
                     <tr>
                         <th><?php echo $no;?></th>
                      
-                        <th><?php echo $key['name'] ;?></th>
+                        <th><?php echo htmlspecialchars($key['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></th>
                             <th><?php echo date('d-m-Y', strtotime($key['created_date'])) ;?></th>
                             <th><?php echo $key['openning_stock'] ;?></th>
                  

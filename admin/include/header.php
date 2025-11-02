@@ -202,13 +202,13 @@ function number_format1($number, $decimal = 2)
                         <li class="nav-item dropdown nav-user">
                             <a class="nav-link nav-user-img" href="profile.php" id="navbarDropdownMenuLink2"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img
-                                    src="../assets/uploadImage/Profile/<?= $result['image'] ?>" alt=""
+                                    src="../assets/uploadImage/Profile/<?php echo htmlspecialchars($result['image'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" alt=""
                                     class="user-avatar-md rounded-circle"></a>
                             <div class="dropdown-menu dropdown-menu-right nav-user-dropdown"
                                 aria-labelledby="navbarDropdownMenuLink2">
                                 <div
                                     class="nav-user-info d-flex align-items-center justify-content-between bg-white text-dark border-bottom">
-                                    <img src="../assets/uploadImage/Profile/<?= $result['image'] ?>" alt=""
+                                    <img src="../assets/uploadImage/Profile/<?php echo htmlspecialchars($result['image'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" alt=""
                                         class="user-avatar-md rounded-circle">
                                     <h6 class="mb-0 text-dark nav-user-name">
                                         <h6>

@@ -71,8 +71,8 @@ require_once('../assets/constants/fetch-my-info.php');
 
                       foreach ($record as $res) { ?>
 
-                        <option value="<?php echo $res['cust_name'] ?>">
-                        <?php echo $res['cust_name'];
+                        <option value="<?php echo htmlspecialchars($res['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo htmlspecialchars($res['cust_name'] ?? '', ENT_QUOTES, 'UTF-8');
                       } ?>
                         </option>      
                                         </select>

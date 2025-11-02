@@ -105,7 +105,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                             </td>
 
                                             <td><?php echo htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= $group['name']; ?></td>
+                                            <td><?php echo htmlspecialchars($group['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <?php if (in_array('Delete Users', $userroles) || ($admin['role_id'] == 0) || in_array('Edit Users', $userroles)) { ?>
                                                 <td>
 

@@ -107,7 +107,7 @@ $web = $statement->fetch(PDO::FETCH_ASSOC);
       <div class="receipt">
          <h2><?php echo htmlspecialchars($web['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h2>
          <p><?php echo htmlspecialchars($result['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
-         <p>Ph:<?php echo $result['contact'];?></p>
+         <p>Ph:<?php echo htmlspecialchars($result['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
          <hr>
          <strong>
   <?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
@@ -118,7 +118,7 @@ $web = $statement->fetch(PDO::FETCH_ASSOC);
          <!--<span>Reg. No: 270988</span>-->
          <hr>
          <p>Date: <?php echo date("d-m-Y", strtotime($invoice['build_date'])); ?></p>
-         <p><strong>ID: <?php echo $invoice['inv_no'];?> - <?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong><br>Address: <?php echo htmlspecialchars($cust['cust_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+         <p><strong>ID: <?php echo htmlspecialchars($invoice['inv_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong><br>Address: <?php echo htmlspecialchars($cust['cust_address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
          <hr>
          <table>
             <tr>
@@ -164,7 +164,7 @@ $ftax=0;
             <tr>
                 <td><?= $i; ?> </td>
                <td><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?> </td>
-               <td><?= $item['quantity'] ?></td>
+               <td><?php echo htmlspecialchars($item['quantity'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                <td><?php echo $web['currency_symbol'] . number_format($row1['selling_gst'], 2); ?></td>
                <td >
                     <?php if($row1['exp']==0){
@@ -175,7 +175,8 @@ $ftax=0;
                                             $stax->execute();
                                             $tax = $stax->fetch();  
                                            
-                                          echo  $cgst=$tax['percentage'];
+                                          echo htmlspecialchars($tax['percentage'] ?? '', ENT_QUOTES, 'UTF-8');
+                                           $cgst=$tax['percentage'];
                                            echo '%('; echo $web['currency_symbol']; echo number_format($cgst_amt=($item['quantity']*$row1['unit_price']*$cgst)/100,2); echo ')';
                                            $ftax+=$cgst_amt;
                                           echo '<br>';

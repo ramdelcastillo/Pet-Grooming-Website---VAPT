@@ -54,11 +54,11 @@
                         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                            <label for="exampleInputEmail1">Name<span class="text-danger">*</span></label>
                            <input type="hidden" name="id" value="<?= $result['id'] ?>">
-                           <input type="text" class="form-control" placeholder="Enter Name" name="assign_name" required autocomplete="off" value="<?php echo $result['name']; ?>">
+                           <input type="text" class="form-control" placeholder="Enter Name" name="assign_name" required autocomplete="off" value="<?php echo htmlspecialchars($result['name'] ?? '', ENT_QUOTES, 'UTF-8');?>">
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                            <label for="exampleInputEmail1">Description<span class="text-danger">*</span></label>
-                           <input type="text" class="form-control" placeholder="Enter  Description" name="description" required autocomplete="off" value="<?php echo $result['description']; ?>">
+                           <input type="text" class="form-control" placeholder="Enter  Description" name="description" required autocomplete="off" value="<?php echo htmlspecialchars($result['description'] ?? '', ENT_QUOTES, 'UTF-8');?>">
                         </div>
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-2">
                            <u>
@@ -85,7 +85,7 @@
                                     if ($id == $row1['permission_id']) {
                                                                                                                                        echo "checked";
                                                                                                                                    } ?>>
-                              <span class="font-weight-bold text-dark h6"><?php echo $row["display_name"]; ?></span>
+                              <span class="font-weight-bold text-dark h6"><?php echo htmlspecialchars($row['display_name'] ?? '', ENT_QUOTES, 'UTF-8');?></span>
                            </div>
                            <?php
                               $stmt2 = $conn->prepare("SELECT * FROM tbl_permissions where main=? ");

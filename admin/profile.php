@@ -233,7 +233,7 @@ if (isset($_POST['update'])) {
               <div class="row">
                 <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-12">
                   <div class="text-center">
-                    <img src="../assets/uploadImage/Profile/<?= $result['image'] ?>" alt="User Avatar"
+                    <img src="../assets/uploadImage/Profile/<?php echo htmlspecialchars($result['image'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" alt="User Avatar"
                       class="rounded-circle user-avatar-xxl">
                   </div>
                 </div>
