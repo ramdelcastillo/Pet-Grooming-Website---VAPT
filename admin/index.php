@@ -83,7 +83,7 @@
                                     */
                                 //   print_r($nume1);exit;
                                     ?>
-                                 <h1 class="mb-1"><?php echo $nume1; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume1 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                               </div>
                               <h5 class="text-white">Total Category</h5>
                            </div>
@@ -113,7 +113,7 @@
                                     */
                                     
                                     ?>
-                                 <h1 class="mb-1"><?php echo $nume2; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume2 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                                  </div>
                                  <h5 class="text-white">Total Product</h5>
                               </div>
@@ -139,7 +139,7 @@
                                     */
                                     
                                     ?>
-                                 <h1 class="mb-1"><?php echo $nume2; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume2 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                                  </div>
                                  <h5 class="text-white">Total Services</h5>
                               </div>
@@ -165,7 +165,7 @@
                                     */
                                     
                                     ?>
-                                 <h1 class="mb-1"><?php echo $nume2; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume2 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                                  </div>
                                  <h5 class="text-white">Total Customers</h5>
                               </div>
@@ -190,7 +190,7 @@
                                     */
                                     
                                     ?>
-                                 <h1 class="mb-1"><?php echo $nume2; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume2 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                                  </div>
                                  <h5 class="text-white">Total Users</h5>
                               </div>
@@ -217,7 +217,7 @@
                               <div class="metric-value d-inline-block">
                                  <?php
                                     $nume5 = $conn->query("SELECT COUNT(*) FROM tbl_invoice where status = '0' AND delete_status='0'")->fetchColumn(); ?>
-                                 <h1 class="mb-1"><?php echo $nume5; ?></h1>
+                                 <h1 class="mb-1"><?php echo htmlspecialchars($nume5 ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
                               </div>
                               <h5 class="text-white">Total Orders</h5>
                            </div>
@@ -304,9 +304,9 @@
                                  <tr>
                                     <td><?= $no; ?></td>
                                     <td><?php echo date('d-m-Y', strtotime($item['build_date'])); ?></td>
-                                    <td><?= $item['inv_no']; ?></td>
-                                    <td><?= $cust['cust_mob']; ?></td>
-                                    <td><?= $cust['cust_name']; ?></td>
+                                    <td><?php echo htmlspecialchars($item['inv_no'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($cust['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($cust['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                   
                                     <td><?= number_format($item['final_total'],2); ?>-/</td>
                                     <?php } ?>
