@@ -1,7 +1,7 @@
 <?php
 
 require_once('../assets/constants/config.php');
-require_once '/var/www/html/vendor/autoload.php';  
+require_once '/var/www/vendor/autoload.php';  
 $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
 $dotenv->load();
 

@@ -1,29 +1,38 @@
+# Disable directory listing
+Options -Indexes
+
+# Enable Rewrite Engine
 RewriteEngine On
+
+# --- Hide dotfiles (like .git, .env, .htaccess) ---
+# --- Hide all dotfiles (force 404, not 403) ---
+<FilesMatch "^\.">
+    Require all granted
+</FilesMatch>
+RedirectMatch 404 /\.
+
+
+# --- Force 404 on sensitive files ---
+RewriteRule ^(composer\.json|composer\.lock|popup_style\.css)$ - [R=404,L]
+
+# --- Force 404 if someone tries to access a directory directly (no index) ---
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME}/index\.php !-f
+RewriteRule ^.*$ - [R=404,L]
+
+# --- Force 404 for .git directories explicitly ---
+RedirectMatch 404 /\.git(/|$)
+
+# --- Block access to sensitive asset folders ---
+# (but allow /assets/app/auth.php)
+RewriteCond %{REQUEST_URI} !^/assets/app/auth\.php$
+RewriteCond %{REQUEST_URI} !^/assets/app/popup_style\.css$
+RewriteRule ^assets/(constants|app)(/|$) - [R=404,L]
+
+# --- PHP routing (keep this last so it doesn’t interfere) ---
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.*)$ $1.php [NC,L]
 
-# --- deny access to .htaccess itself ---
-<Files ".ht*">
-    Require all denied
-</Files>
-
-php_flag display_errors On
-
-# /var/www/html/.htaccess (paste this)
-Options -Indexes
-
-# Block any dotfile (including .htaccess, .env, .git files)
-<FilesMatch "^\.">
-    Require all denied
-</FilesMatch>
-
-# Return 404 for any request to the .git directory (prevents leaking refs/tree)
-RedirectMatch 404 /\.git(/|$)
-
-# Deny direct access to listed sensitive files
-<FilesMatch "^(composer\.json|composer\.lock|popup_style\.css)$">
-    Require all denied
-</FilesMatch>
-
-
+# --- PHP config ---
+php_flag display_errors Off

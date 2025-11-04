@@ -6,7 +6,7 @@ session_start();
 
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
-    require_once '/var/www/html/vendor/autoload.php';  
+    require_once '/var/www/vendor/autoload.php';  
     $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
     $dotenv->load();
 
