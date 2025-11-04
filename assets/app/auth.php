@@ -8,7 +8,7 @@ $dotenv->load();
 
 $servername = $_ENV['DB_HOST'];
 $username   = $_ENV['DB_USER'];
-$password  = $_ENV['DB_PASS'];
+$password   = $_ENV['DB_PASS'];
 $dbname     = $_ENV['DB_NAME'];
 
 session_start();
@@ -16,48 +16,35 @@ session_start();
 require_once('../constants/config.php');
 
 $email_address = $_POST['email'];
-//print_r($email_address); exit;
-$passw = hash('sha256', $_POST['password']);
+$password_raw  = $_POST['password']; // raw password from user input
 
-// print_r($passw); exit;
+// print_r($email_address); exit;
 //$passw = hash('sha256',$p);
 //echo $passw;exit;
-function createSalt()
-{
-  return '2123293dsj2hu2nikhiljdsd';
-}
-$salt = createSalt();
-$pass = hash('sha256', $salt . $passw);
-//
+
 try {
   $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $stmt = $conn->prepare("SELECT * FROM tbl_admin where email=:email AND  password=:password AND delete_status='0'  ");
+  // Fetch user by email only, no password in SQL
+  $stmt = $conn->prepare("SELECT * FROM tbl_admin WHERE email=:email AND delete_status='0'");
   $stmt->bindParam(':email', $email_address);
-  $stmt->bindParam(':password', $pass);
   $stmt->execute();
-  $result = $stmt->fetchAll();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
   //getting number of records found
-  $rec = count($result);
+  if ($result) {
+    $role   = $result['role'];
+    $avator = $result['image'];
+    $_SESSION['id'] = $result['id'];
 
-  if ($rec > 0) {
-    foreach ($result as $row) {
-
-
-      $role = $row['role'];
-      $avator = $row['image'];
-      $_SESSION['id'] = $row['id'];
-    }
-//print_r($row['password']); exit;
     switch ($role) {
       case 'admin':
         //echo$pass;
         //echo$row['password'];exit;
 
-        # verifying password
-        if ($pass == $row['password']) {
+        # verifying password using bcrypt
+        if (password_verify($password_raw, $result['password'])) {
 
           admin_login();
         } else {
@@ -68,7 +55,7 @@ try {
             <div class="popup__content">
               <h3 class="popup__content__title">
                 Error
-                </h1>
+                </h3>
                 <p>Invalid Email or Password</p>
                 <p>
                   <a href="../../index.php"><button class="button button--error" data-for="js_error-popup">Close</button></a>
@@ -76,17 +63,12 @@ try {
             </div>
           </div>
   <?php
-          /* echo "<script>document.location='../../index.php'
-</script>";
-*/  /*$_SESSION['reply'] = "001";
-    header("location:../../");
-*/
         }
         break;
 
       case 'users':
 
-        if ($pass == $row['password']) {
+        if (password_verify($password_raw, $result['password'])) {
 
           student_login();
         } else {
@@ -120,7 +102,7 @@ function admin_login()
     <div class="popup__content">
       <h3 class="popup__content__title">
         Success
-        </h1>
+        </h3>
         <p>Login Successfully</p>
 
         <p>
@@ -137,8 +119,8 @@ function student_login()
 
   $_SESSION['logged'] = "1";
   //$_SESSION['role'] = "users";
-  $_SESSION['role'] = $role;
-  $_SESSION['email'] = $_POST['email_address'];
-  $_SESSION['avator'] = $avator;
+  $_SESSION['role'] = $GLOBALS['role'];
+  $_SESSION['email'] = $GLOBALS['email_address'];
+  $_SESSION['avator'] = $GLOBALS['avator'];
 }
 ?>

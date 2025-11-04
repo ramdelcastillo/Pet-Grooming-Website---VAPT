@@ -115,14 +115,13 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit;
       }
 
-      $passw = hash('sha256', $_POST['password']);
+      $password_raw = $_POST['password'];
 
-      function createSalt()
-      {
-        return '2123293dsj2hu2nikhiljdsd';
-      }
-      $salt = createSalt();
-      $password = hash('sha256', $salt . $passw);
+      $options = [
+        'cost' => 12,
+      ];
+
+      $password = password_hash($password_raw, PASSWORD_BCRYPT, $options);
 
       $role = 'admin';
       $stmt = $conn->prepare("INSERT INTO `tbl_admin`(
@@ -200,11 +199,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         }
       } else {
         $website_logo = $_POST['old_website_image'];
-      }
-
-      function createSalt()
-      {
-        return '2123293dsj2hu2nikhiljdsd';
       }
 
       if (empty($_POST['password']) || empty($_POST['cpassword'])) {
@@ -293,14 +287,16 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
             exit;
           }
 
-          $passw = hash('sha256', $_POST['password']);
-          $salt = createSalt();
-          $password = hash('sha256', $salt . $passw);
+          $password_raw = $_POST['password'];
+
+          $options = [
+            'cost' => 12, // adjust cost if needed
+          ];
+
+          $password = password_hash($password_raw, PASSWORD_BCRYPT, $options);
 
           $stmt = $conn->prepare("UPDATE tbl_admin SET email=:email, role_id=:group_id, fname=:fname, lname=:lname, password=:password , project=:project, address=:address, contact=:contact WHERE id=:id");
 
-
-          $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
           $id = htmlspecialchars($_POST['id']); // Assuming $_POST['id'] is already sanitized or validated
 
           $stmt->bindParam(':fname', $fname);
@@ -317,7 +313,9 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
           $execute = $stmt->execute();
           if ($execute == true) {
-            $_SESSION['success'] = "User Updated Succesfully";
+            $temp_password = "123"; 
+            $hashed = password_hash($temp_password, PASSWORD_BCRYPT, ['cost' => 12]);
+            $_SESSION['success'] = "User Updated Successfully. New Hash: " . $hashed;
             header('location:../view_user.php');
             exit;
           }
