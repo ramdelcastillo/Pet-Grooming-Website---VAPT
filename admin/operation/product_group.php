@@ -62,13 +62,11 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         $_SESSION['success'] = "Category Added Succesfully";
         header('location:../category.php');
         exit;
-      }
-      else if ($duplicate) {
+      } else if ($duplicate) {
         $_SESSION['error'] = "Category name already exists";
         header('location:../category.php');
         exit;
-      }
-      else {
+      } else {
         $_SESSION['error'] = "Unexpected input detected.";
         header('location:../category.php');
         exit;
@@ -140,9 +138,25 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       }
     }
 
-                                                                                if (isset($_POST['del_id'])) {
+    if (isset($_POST['del_id'])) {
+      $id = $_POST['del_id'];
+
+      $stmt = $conn->prepare("
+          SELECT name FROM tbl_product_grp
+          WHERE id = ? and delete_status = 0
+      ");
+
+      $stmt->execute([$id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('Location: ../category.php');
+        exit;
+      }
+
       $stmt = $conn->prepare("UPDATE tbl_product_grp SET delete_status=1 WHERE id=:id");
-      $stmt->bindParam(':id', $_POST['del_id']);
+      $stmt->bindParam(':id', $id);
       $stmt->execute();
 
       $_SESSION['success'] = "Category Deleted Succesfully";

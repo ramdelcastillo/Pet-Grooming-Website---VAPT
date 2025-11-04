@@ -101,11 +101,12 @@ function number_format1($number, $decimal = 2) {
                                     $stmt2->execute([$invoice['customer_id']]);
                                    // print_r($stmt2);exit;
                                     $record2 = $stmt2->fetch();
+                                    // $stm3 = $conn->prepare("SELECT * FROM ");
                                     echo htmlspecialchars($record2['cust_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></b></p>
-                  <p class="mb-0 text-right"><?php echo htmlspecialchars($invoice['c_address'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
-                  <p class="mb-0 text-right"><?php echo htmlspecialchars($invoice['customer_no'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
-                  <p class="mb-0 text-right"><?= $invoice['c_email']; ?></p> 
-                  <!-- WILL REVISE SQL STATEMENT -->
+                  <p class="mb-0 text-right"><?php echo htmlspecialchars($record2['cust_address'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0 text-right"><?php echo htmlspecialchars($record2['cust_mob'] ?? '', ENT_QUOTES, 'UTF-8');?></p>
+                  <p class="mb-0 text-right"><?= $record2['cust_email']; ?></p> 
+                  
                </div>
             </div>
             <div class="text-center">

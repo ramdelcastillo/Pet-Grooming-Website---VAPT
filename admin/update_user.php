@@ -67,7 +67,7 @@ $groups = $stmt->fetchAll();
 
                                     <input type="text" class="form-control" name="fname"
                                         value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8');?>"
-                                        required pattern="^[a-zA-Z]+$">
+                                        required >
 
                                     <div class="invalid-feedback">
                                     </div>
@@ -75,7 +75,7 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">Last name<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="lname"
-                                        value="<?php echo htmlspecialchars($product_group['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required pattern="^[a-zA-Z]+$">
+                                        value="<?php echo htmlspecialchars($product_group['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required >
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
@@ -84,7 +84,7 @@ $groups = $stmt->fetchAll();
                                     <label for="validationCustom02">Email<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="email"
                                         value="<?php echo htmlspecialchars($product_group['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
-                                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                                        >
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
@@ -100,8 +100,8 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Phone<span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" name="contact"
-                                        value="<?php echo htmlspecialchars($product_group['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required min_length="10"
-                                        max_length="10" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                                        value="<?php echo htmlspecialchars($product_group['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required 
+                                        max_length="10" 
                                         placeholder="Enter phone">
                                     <div class="valid-feedback">
                                     </div>

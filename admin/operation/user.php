@@ -47,7 +47,41 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit;
       }
 
-      $email = htmlspecialchars($_POST['email']);
+      $email = $_POST['email'];
+      $fname = $_POST['fname'];
+      $lname = $_POST['lname'];
+      $address = $_POST['address'];
+      $contact = $_POST['contact'];
+
+      $errors = [];
+
+      if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
+        $errors[] = 'Invalid First Name: Only letters and spaces allowed';
+      } elseif (strlen($fname) > 50) {
+        $errors[] = 'Invalid First Name: Must not exceed 50 characters';
+      }
+      if (!preg_match("/^[a-zA-Z ]+$/", $lname)) {
+        $errors[] = 'Invalid Last Name: Only letters and spaces allowed';
+      } elseif (strlen($lname) > 500) {
+        $errors[] = 'Invalid Last Name: Must not exceed 500 characters';
+      }
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid Email Address';
+      } elseif (strlen($email) > 30) {
+        $errors[] = 'Invalid Email Address: Must not exceed 30 characters';
+      }
+      if (!preg_match("/^\+?\d{1,50}$/", $contact)) {
+        $errors[] = 'Invalid Contact Number: Must contain only digits and optional + at the start (max 50 characters)';
+      }
+      if (strlen($address) > 500) {
+        $errors[] = 'Address must not exceed 500 characters';
+      }
+
+      if (!empty($errors)) {
+        $_SESSION['error'] = implode('<br>', $errors);
+        header('location:../view_user.php');
+        exit();
+      }
 
       $stmt = $conn->prepare("
           SELECT EXISTS(
@@ -81,7 +115,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit;
       }
 
-
       $passw = hash('sha256', $_POST['password']);
 
       function createSalt()
@@ -104,11 +137,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           :admin_user,:gstin
       )");
 
-
-      $fname = htmlspecialchars($_POST['fname']);
-      $lname = htmlspecialchars($_POST['lname']);
-      $role = htmlspecialchars($role); // Assuming $role is already sanitized or validated
-      $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
       $username = htmlspecialchars($_POST['fname'] . $_POST['lname']);
       $gender = '';
       $dob = '';
@@ -190,8 +218,42 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         header('location:../view_user.php');
         exit;
       } else {
-        $email = htmlspecialchars($_POST['email']);
-        $id = htmlspecialchars($_POST['id']);
+        $email = $_POST['email'];
+        $id = $_POST['id'];
+        $fname = $_POST['fname'];
+        $lname = $_POST['lname'];
+        $address = $_POST['address'];
+        $contact = $_POST['contact'];
+
+        $errors = [];
+
+        if (!preg_match("/^[a-zA-Z ]+$/", $fname)) {
+          $errors[] = 'Invalid First Name: Only letters and spaces allowed';
+        } elseif (strlen($fname) > 50) {
+          $errors[] = 'Invalid First Name: Must not exceed 50 characters';
+        }
+        if (!preg_match("/^[a-zA-Z ]+$/", $lname)) {
+          $errors[] = 'Invalid Last Name: Only letters and spaces allowed';
+        } elseif (strlen($lname) > 500) {
+          $errors[] = 'Invalid Last Name: Must not exceed 500 characters';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+          $errors[] = 'Invalid Email Address';
+        } elseif (strlen($email) > 30) {
+          $errors[] = 'Invalid Email Address: Must not exceed 30 characters';
+        }
+        if (!preg_match("/^\+?\d{1,50}$/", $contact)) {
+          $errors[] = 'Invalid Contact Number: Must contain only digits and optional + at the start (max 50 characters)';
+        }
+        if (strlen($address) > 500) {
+          $errors[] = 'Address must not exceed 500 characters';
+        }
+
+        if (!empty($errors)) {
+          $_SESSION['error'] = implode('<br>', $errors);
+          header('location:../view_user.php');
+          exit();
+        }
 
         $stmt = $conn->prepare("
             SELECT email FROM tbl_admin
@@ -237,8 +299,7 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
           $stmt = $conn->prepare("UPDATE tbl_admin SET email=:email, role_id=:group_id, fname=:fname, lname=:lname, password=:password , project=:project, address=:address, contact=:contact WHERE id=:id");
 
-          $fname = htmlspecialchars($_POST['fname']);
-          $lname = htmlspecialchars($_POST['lname']);
+
           $password = htmlspecialchars($password); // Assuming $password is already sanitized or validated
           $id = htmlspecialchars($_POST['id']); // Assuming $_POST['id'] is already sanitized or validated
 
@@ -274,6 +335,20 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     if (isset($_POST['del_id'])) {
       $userId = $_POST['del_id'];
+
+      $stmt = $conn->prepare("
+            SELECT email FROM tbl_admin
+            WHERE id = ? AND delete_status = 0 AND role_id != 0
+      ");
+
+      $stmt->execute([$userId]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../view_user.php');
+        exit;
+      }
 
       try {
         $conn->beginTransaction();

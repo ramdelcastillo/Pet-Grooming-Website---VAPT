@@ -5,87 +5,103 @@ error_reporting(0);
 session_start();
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
-  require_once '/var/www/html/vendor/autoload.php';  
-  $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
+  require_once '/var/www/html/vendor/autoload.php';
+  $dotenv = Dotenv\Dotenv::createImmutable('/var/www/env');
   $dotenv->load();
 
   $servername = $_ENV['DB_HOST'];
-  $username   = $_ENV['DB_USER'];
-  $password  = $_ENV['DB_PASS'];
-  $dbname     = $_ENV['DB_NAME'];
+  $username = $_ENV['DB_USER'];
+  $password = $_ENV['DB_PASS'];
+  $dbname = $_ENV['DB_NAME'];
 
   try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
-   
-if (isset($_POST['add_stock'])) {
-    // Form se values le rahe hain
-    $id = $_POST['id'];
-    $new_stock = $_POST['openning_stock'];
 
-    if (!filter_var($new_stock, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 10000]])) {
-    $_SESSION['error'] = "Stock addition must be a whole number between 1 and 10,000.";
-    header('location:../productdisplay.php');
-    exit;
-    }
+    if (isset($_POST['add_stock'])) {
+      // Form se values le rahe hain
+      $id = $_POST['id'];
 
-    $query = "SELECT openning_stock FROM tbl_product WHERE id = :id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    $stmt->execute();
-    $current_stock = $stmt->fetchColumn();
+      $stmt = $conn->prepare("
+          SELECT name FROM tbl_product
+          WHERE id = ? AND delete_status = 0
+      ");
 
-    if ($current_stock === false) {
+      $stmt->execute([$id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+
+      $new_stock = $_POST['openning_stock'];
+
+      if (!filter_var($new_stock, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 10000]])) {
+        $_SESSION['error'] = "Stock addition must be a whole number between 1 and 10,000.";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      $query = "SELECT openning_stock FROM tbl_product WHERE id = :id";
+      $stmt = $conn->prepare($query);
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+      $stmt->execute();
+      $current_stock = $stmt->fetchColumn();
+
+      if ($current_stock === false) {
         $_SESSION['error'] = "Product not found.";
         header('location:../productdisplay.php');
         exit;
-    }
+      }
 
-    $updated_stock = $current_stock + $new_stock;
+      $updated_stock = $current_stock + $new_stock;
 
-    try {
+      try {
         // PDO query execute karna
         $query = "UPDATE tbl_product SET openning_stock = :updated_stock WHERE id = :id";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':updated_stock', $updated_stock, PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        
+
         if ($stmt->execute()) {
-            $_SESSION['success'] = "Stock Updated Succesfully";
-      header('location:../productdisplay.php');
-      exit;
+          $_SESSION['success'] = "Stock Updated Succesfully";
+          header('location:../productdisplay.php');
+          exit;
         } else {
-            echo "<script>alert('Stock update failed!');</script>";
+          echo "<script>alert('Stock update failed!');</script>";
         }
-    } catch (PDOException $e) {
+      } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
+      }
     }
-}
 
 
 
     if (isset($_POST['btn_save'])) {
-        
-      
-    $id=$_SESSION['id'];
-      $openning_stock = 0;
-      
-      
-      $gst=$_POST['gst'];
 
-      $expl=implode(',',$gst);
-      
-   
-      $selling_cost= '';
-      if($_POST['exp']==1){
-          $selling_cost= $_POST['unit_price'];
-      }else  if($_POST['exp']==0){
-          $selling_cost = $_POST['selling_gst'];
+
+      $id = $_SESSION['id'];
+      $openning_stock = 0;
+
+
+      $gst = $_POST['gst'];
+
+      $expl = implode(',', $gst);
+
+
+      $selling_cost = '';
+      if ($_POST['exp'] == 1) {
+        $selling_cost = $_POST['unit_price'];
+      } else if ($_POST['exp'] == 0) {
+        $selling_cost = $_POST['selling_gst'];
       }
-      
-      
+
+
       $stmt = $conn->prepare("INSERT INTO tbl_product (pid, name,unit_price,purchase_price,openning_stock,currentdate,group_id,details,user_id, gst,purchase_gst, selling_gst, exp,exp_date,hsn) VALUES (:pid,:name,:unit_price,:purchase_price,:openning_stock, :created_date,:group_id,:details,:user_id, :gst, :purchase_gst, :selling_gst,:exp,:exp_date,:hsn)");
       $stmt->bindParam(':pid', htmlspecialchars($_POST['pid']));
       $stmt->bindParam(':name', htmlspecialchars($_POST['name']));
@@ -96,51 +112,51 @@ if (isset($_POST['add_stock'])) {
       $stmt->bindParam(':created_date', htmlspecialchars(date('Y-m-d')));
       $stmt->bindParam(':group_id', htmlspecialchars($_POST['group_id']));
       $stmt->bindParam(':details', htmlspecialchars($_POST['details']));
-  
-       $stmt->bindParam(':user_id', $id);
-        $stmt->bindParam(':gst', $expl);
-        $stmt->bindParam(':purchase_gst', htmlspecialchars($_POST['purchase_gst']));
-        $stmt->bindParam(':selling_gst', htmlspecialchars($selling_cost));
-         $stmt->bindParam(':exp', htmlspecialchars($_POST['exp']));
-          $stmt->bindParam(':exp_date', htmlspecialchars($_POST['exp_date']));
-          
-            $stmt->bindParam(':hsn', htmlspecialchars($_POST['hsn']));
-    //   $stmt->bindParam(':image', htmlspecialchars($img));
+
+      $stmt->bindParam(':user_id', $id);
+      $stmt->bindParam(':gst', $expl);
+      $stmt->bindParam(':purchase_gst', htmlspecialchars($_POST['purchase_gst']));
+      $stmt->bindParam(':selling_gst', htmlspecialchars($selling_cost));
+      $stmt->bindParam(':exp', htmlspecialchars($_POST['exp']));
+      $stmt->bindParam(':exp_date', htmlspecialchars($_POST['exp_date']));
+
+      $stmt->bindParam(':hsn', htmlspecialchars($_POST['hsn']));
+      //   $stmt->bindParam(':image', htmlspecialchars($img));
 
       $stmt->execute();
 
       //echo "<script>alert(' Record Successfully Added');</script>";
       $last_inserted_id = htmlspecialchars($conn->lastInsertId());
 
-     $_SESSION['success'] = "Product Added Succesfully";
+      $_SESSION['success'] = "Product Added Succesfully";
       header('location:../productdisplay.php');
       exit;
 
     }
-    
+
     // print_r($_POST);
-   if (isset($_POST['btn_edit'])) {
+    if (isset($_POST['btn_edit'])) {
 
-    $id = $_POST['id'];
-    $pid = htmlspecialchars($_POST['pid']);
-    $name = htmlspecialchars($_POST['name']);
-    $hsn = htmlspecialchars($_POST['hsn']);
-    $group_id = $_POST['group_id'];
-    $purchase_price = $_POST['purchase_price'];
-    $unit_price = $_POST['unit_price'];
-    $details = htmlspecialchars($_POST['details']);
-    $exp = $_POST['exp'];
-    $exp_date = !empty($_POST['exp_date']) ? $_POST['exp_date'] : null;
-  
-    $gst_array = $_POST['gst'] ?? [];
-    $gst = implode(',', $gst_array); // convert array to comma-separated string
-    $purchase_gst = $_POST['purchase_gst'];
-    $selling_gst = $_POST['selling_gst'];
+      $id = $_POST['id'];
+      $pid = htmlspecialchars($_POST['pid']);
+      $name = htmlspecialchars($_POST['name']);
+      $hsn = htmlspecialchars($_POST['hsn']);
+      $group_id = $_POST['group_id'];
+      $purchase_price = $_POST['purchase_price'];
+      $unit_price = $_POST['unit_price'];
+      $details = htmlspecialchars($_POST['details']);
+      $exp = $_POST['exp'];
+      $exp_date = !empty($_POST['exp_date']) ? $_POST['exp_date'] : null;
 
-    // Decide on final selling price based on type (Product or Service)
-    $final_selling_cost = ($exp == '1') ? $unit_price : $selling_gst;
+      $gst_array = $_POST['gst'] ?? [];
+      $gst = implode(',', $gst_array); // convert array to comma-separated string
+      $purchase_gst = $_POST['purchase_gst'];
+      $selling_gst = $_POST['selling_gst'];
 
-    try {
+      // Decide on final selling price based on type (Product or Service)
+      $final_selling_cost = ($exp == '1') ? $unit_price : $selling_gst;
+
+      try {
         $stmt = $conn->prepare("UPDATE tbl_product SET 
             pid = :pid,
             name = :name,
@@ -166,36 +182,51 @@ if (isset($_POST['add_stock'])) {
         $stmt->bindParam(':details', $details);
         $stmt->bindParam(':exp', $exp);
         $stmt->bindParam(':exp_date', $exp_date);
-       
+
         $stmt->bindParam(':gst', $gst);
         $stmt->bindParam(':purchase_gst', $purchase_gst);
         $stmt->bindParam(':selling_gst', $final_selling_cost);
         $stmt->bindParam(':id', $id);
 
         if ($stmt->execute()) {
-            $_SESSION['success'] = "Product updated successfully.";
-            header("Location: ../productdisplay.php"); 
-            exit();
+          $_SESSION['success'] = "Product updated successfully.";
+          header("Location: ../productdisplay.php");
+          exit();
 
         } else {
-            $_SESSION['error'] = "Something went wrong. Try again.";
-            header("Location: ../update_product.php?id=" . $id);
-            exit();
+          $_SESSION['error'] = "Something went wrong. Try again.";
+          header("Location: ../update_product.php?id=" . $id);
+          exit();
         }
-    } catch (PDOException $e) {
+      } catch (PDOException $e) {
         $_SESSION['error'] = "DB Error: " . $e->getMessage();
         header("Location: ../update_product.php?id=" . $id);
         exit();
+      }
     }
-}
 
     if (isset($_POST['del_id'])) {
-      //$stmt = $conn->prepare("DELETE FROM customers WHERE id = :id");
+      $id = $_POST['del_id'];
+
+      $stmt = $conn->prepare("
+          SELECT name FROM tbl_product
+          WHERE id = ? AND delete_status = 0
+      ");
+
+      $stmt->execute([$id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
       $stmt = $conn->prepare("UPDATE tbl_product SET delete_status=1 WHERE id=:id");
-      $stmt->bindParam(':id', htmlspecialchars($_POST['del_id']));
+      $stmt->bindParam(':id', $id);
       $stmt->execute();
 
-       $_SESSION['success'] = "Product Deleted Succesfully";
+      $_SESSION['success'] = "Product Deleted Succesfully";
       header('location:../productdisplay.php');
       exit;
     }

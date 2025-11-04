@@ -34,7 +34,7 @@
                                         <div class="form-group col-md-6">
                                                 <label class="control-label">Customer Mobile No:<span class="text-danger">*</span> </label>
                                         
-                                                    <input type="text" name="customer_mobno" class="form-control "  placeholder="Customer No" minlength="10" maxlength="10" pattern="^[0][1-9]\d{9}$|^[1-9]\d{9}$" required>
+                                                    <input type="text" name="customer_mobno" class="form-control "  placeholder="Customer No" required>
                                         </div>
                     
 

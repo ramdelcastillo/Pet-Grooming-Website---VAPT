@@ -53,13 +53,13 @@ $result = $stmt->fetchAll();
                             <div class="form-row">
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">First name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control " name="fname" value="" required pattern="^[a-z A-Z]+$" placeholder="Enter First Name">
+                                    <input type="text" class="form-control " name="fname" value="" required placeholder="Enter First Name">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">Last name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="lname" value="" required pattern="^[a-zA-Z]+$" placeholder="Enter Last Name">
+                                    <input type="text" class="form-control" name="lname" value="" required placeholder="Enter Last Name">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
@@ -69,19 +69,19 @@ $result = $stmt->fetchAll();
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Email<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="email" value="" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter Email Address">
+                                    <input type="text" class="form-control" name="email" value="" required placeholder="Enter Email Address">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Address<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="address" value="" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter address here">
+                                    <input type="text" class="form-control" name="address" value="" required placeholder="Enter address here">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Phone<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="contact" min_length="0" max_length="10" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Enter phone">
+                                    <input type="number" class="form-control" name="contact" required placeholder="Enter phone">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
