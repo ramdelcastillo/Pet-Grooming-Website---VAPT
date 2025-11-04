@@ -1,6 +1,29 @@
-RewriteEngine on
+RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.*)$ $1.php [NC,L]
 
+# --- deny access to .htaccess itself ---
+<Files ".ht*">
+    Require all denied
+</Files>
+
 php_flag display_errors On
+
+# /var/www/html/.htaccess (paste this)
+Options -Indexes
+
+# Block any dotfile (including .htaccess, .env, .git files)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Return 404 for any request to the .git directory (prevents leaking refs/tree)
+RedirectMatch 404 /\.git(/|$)
+
+# Deny direct access to listed sensitive files
+<FilesMatch "^(composer\.json|composer\.lock|popup_style\.css)$">
+    Require all denied
+</FilesMatch>
+
+

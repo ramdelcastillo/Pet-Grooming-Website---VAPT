@@ -6,9 +6,6 @@ require_once('../assets/constants/fetch-my-info.php');
 
 ?>
 
-
-
-
 <?php include('include/head.php'); ?>
 <?php include('include/header.php'); ?>
 
