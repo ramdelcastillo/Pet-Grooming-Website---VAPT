@@ -136,29 +136,128 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     // print_r($_POST);
     if (isset($_POST['btn_edit'])) {
-
       $id = $_POST['id'];
-      $pid = htmlspecialchars($_POST['pid']);
-      $name = htmlspecialchars($_POST['name']);
-      $hsn = htmlspecialchars($_POST['hsn']);
       $group_id = $_POST['group_id'];
-      $purchase_price = $_POST['purchase_price'];
-      $unit_price = $_POST['unit_price'];
-      $details = htmlspecialchars($_POST['details']);
-      $exp = $_POST['exp'];
-      $exp_date = !empty($_POST['exp_date']) ? $_POST['exp_date'] : null;
+
+      $stmt = $conn->prepare("
+          SELECT name FROM tbl_product
+          WHERE id = ? AND delete_status = 0
+      ");
+
+      $stmt->execute([$id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      $stmt = $conn->prepare("
+          SELECT name FROM tbl_product_grp
+          WHERE id = ? and delete_status = 0
+      ");
+
+      $stmt->execute([$group_id]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      $name = $_POST['name'];
+
+      $stmt = $conn->prepare("
+          SELECT id FROM tbl_product
+          WHERE name = ? AND id != ? AND delete_status = 0
+      ");
+      $stmt->execute([$name, $id]);
+      $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($duplicate) {
+        $_SESSION['error'] = "Product name already exists";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+
+      $pid = htmlspecialchars($_POST['pid']);
+
+ 
+
+      $exp_date = $_POST['exp_date'];
+      $d = DateTime::createFromFormat('Y-m-d', $exp_date);
+
+      if (!$d || $d->format('Y-m-d') !== $exp_date) {
+        $exp_date = null;
+      }
 
       $gst_array = $_POST['gst'] ?? [];
-      $gst = implode(',', $gst_array); // convert array to comma-separated string
-      $purchase_gst = $_POST['purchase_gst'];
-      $selling_gst = $_POST['selling_gst'];
+      $gst = isset($gst_array[0]) ? (int) $gst_array[0] : 0; // cast to int, default 0
+
+      $stmt = $conn->prepare("
+        SELECT percentage FROM tbl_tax
+        WHERE id = ? AND delete_status = 0
+      ");
+      $stmt->execute([$gst]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$record) {
+        $_SESSION['error'] = "Error";
+        header('location:../productdisplay.php');
+        exit;
+      }
+      $hsn = $_POST['hsn'];
+      $details = $_POST['details'];
+      $perc = (int) $record['percentage'];
+      $exp = (int) $_POST['exp'];
+      $purchase_price = (float) $_POST['purchase_price'];
+      $unit_price = (float) $_POST['unit_price'];
+      $min_stock = (int) $_POST['min_stock'];
+
+      $errors = [];
+
+
+      if (!preg_match("/^\d{5,6}$/", $hsn)) {
+        $errors[] = 'Invalid HSN: Must be a 5–6 digit numeric code (no spaces or symbols)';
+      }
+      if (strlen($details) > 1500) {
+        $errors[] = 'Invalid product name';
+      }
+      if (!preg_match('/^[01]$/', $exp)) {
+        $errors[] = 'Invalid value for exp: Must be 0 or 1';
+      }
+      if (!filter_var($purchase_price, FILTER_VALIDATE_FLOAT) && $purchase_price !== '0') {
+        $errors[] = 'Invalid purchase price: Must be a number';
+      }
+      if (!filter_var($unit_price, FILTER_VALIDATE_FLOAT) && $unit_price !== '0') {
+        $errors[] = 'Invalid unit price: Must be a number';
+      }
+      if ($min_stock < 1 || $min_stock > 10000) {
+        $errors[] = 'Invalid minimum stock: Must be between 1 and 10,000';
+      }
+      if (!empty($errors)) {
+        $_SESSION['error'] = implode('<br>', $errors);
+        header('location:../productdisplay.php');
+        exit();
+      }
+
+
+      if ($exp === 0) { // Product
+        $purchase_gst = $purchase_price + ($purchase_price * $perc / 100);
+        $selling_gst = $unit_price + ($unit_price * $perc / 100);
+      } else { // Service
+        $purchase_gst = $purchase_price; // or leave as is
+        $selling_gst = $unit_price;
+      }
 
       // Decide on final selling price based on type (Product or Service)
       $final_selling_cost = ($exp == '1') ? $unit_price : $selling_gst;
 
       try {
         $stmt = $conn->prepare("UPDATE tbl_product SET 
-            pid = :pid,
             name = :name,
             hsn = :hsn,
             group_id = :group_id,
@@ -167,13 +266,12 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
             details = :details,
             exp = :exp,
             exp_date = :exp_date,
-          
             gst = :gst,
             purchase_gst = :purchase_gst,
-            selling_gst = :selling_gst
+            selling_gst = :selling_gst,
+            min_stock = :min_stock
         WHERE id = :id");
 
-        $stmt->bindParam(':pid', $pid);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':hsn', $hsn);
         $stmt->bindParam(':group_id', $group_id);
@@ -182,10 +280,10 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         $stmt->bindParam(':details', $details);
         $stmt->bindParam(':exp', $exp);
         $stmt->bindParam(':exp_date', $exp_date);
-
         $stmt->bindParam(':gst', $gst);
         $stmt->bindParam(':purchase_gst', $purchase_gst);
         $stmt->bindParam(':selling_gst', $final_selling_cost);
+        $stmt->bindParam(':min_stock', $min_stock);
         $stmt->bindParam(':id', $id);
 
         if ($stmt->execute()) {

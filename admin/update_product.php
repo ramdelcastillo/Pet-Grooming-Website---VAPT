@@ -81,7 +81,7 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                     <label for="validationCustom03">Serial No<span class="text-danger">*</span></label>
 
-                                    <input type="text" name="pid" value="<?php echo htmlspecialchars($product['pid'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="Product Serial No" required="">
+                                    <input type="text" name="pid" value="<?php echo htmlspecialchars($product['pid'] ?? '', ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="Product Serial No" required="" readonly="">
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>

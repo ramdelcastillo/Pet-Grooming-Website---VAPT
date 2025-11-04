@@ -1,4 +1,4 @@
-<?php
+a<?php
 error_reporting(0);
 require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
