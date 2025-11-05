@@ -58,43 +58,43 @@ require_once('../assets/constants/fetch-my-info.php');
                     <div class="card-body">
                         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
                             <div class="form-row">
-                                
+
                                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">Product/Service</label>
 
                                     <select name="product_id" class="form-control select2" id="product_id">
                                         <option value="">--Select--</option>
                                         <?php
-                                        if($_SESSION['id']==1){
-                                        $sql = "SELECT * FROM tbl_product where delete_status='0'  order by id desc";
+                                        if ($_SESSION['id'] == 1) {
+                                            $sql = "SELECT * FROM tbl_product where delete_status='0'  order by id desc";
 
-                                        }else{
-                                             $sql = "SELECT * FROM tbl_product where delete_status='0' and user_id='".$_SESSION['id']."' order by id desc";
+                                        } else {
+                                            $sql = "SELECT * FROM tbl_product where delete_status='0' and user_id='" . $_SESSION['id'] . "' order by id desc";
                                         }
                                         $statement = $conn->prepare($sql);
                                         $statement->execute();
 
 
                                         while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                                        ?>
-                                            <option value="<?php echo $row['id']; ?>" <?php echo (isset($_POST['product_id']) && $_POST['product_id'] == $row['id']) ? 'selected' : '';  ?>><?php echo $row['name']; ?></option>
+                                            ?>
+                                            <option value="<?php echo $row['id']; ?>" <?php echo (isset($_POST['product_id']) && $_POST['product_id'] == $row['id']) ? 'selected' : ''; ?>><?php echo $row['name']; ?></option>
                                         <?php } ?>
                                     </select>
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
-                            
 
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-2">
-                                        <label for="validationCustomUsername"></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                            </div>
 
-                                            <button class="btn btn-primary" type="submit" name="search">Search</button>
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-2">
+                                    <label for="validationCustomUsername"></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
                                         </div>
+
+                                        <button class="btn btn-primary" type="submit" name="search">Search</button>
                                     </div>
-                                
+                                </div>
+
 
                             </div>
 
@@ -115,7 +115,7 @@ require_once('../assets/constants/fetch-my-info.php');
                                 <thead>
                                     <tr>
                                         <th>SR No</th>
-                                           <th>Invoice<br>Number</th>
+                                        <th>Invoice<br>Number</th>
                                         <th>Name</th>
                                         <th>Category</th>
                                         <th>Purchase Price</th>
@@ -133,34 +133,36 @@ require_once('../assets/constants/fetch-my-info.php');
 
                                     ?>
                                     <?php
-                                        if (isset($_POST['search'])) {
-                                            $ftot = 0;
-                                            $fprof = 0;
-                                            $product_id = $_POST['product_id'];
-                                            $where = "WHERE delete_status = 0";
-                                            
-                                            if ($product_id != '') {
-                                                $where .= " AND product_id = '" . $product_id . "'";
-                                            }
-
-                                            $sql = "SELECT product_id, inv_id, SUM(rate) AS total_sale_price, SUM(quantity) AS total_qty 
-                                                    FROM tbl_quot_inv_items 
-                                                    $where 
-                                                    GROUP BY product_id, inv_id";
-                                        } else {
-                                            $sql = "SELECT product_id, inv_id, SUM(rate) AS total_sale_price, SUM(quantity) AS total_qty 
-                                                    FROM tbl_quot_inv_items 
-                                                    WHERE delete_status = 0 
-                                                    GROUP BY product_id, inv_id";
+                                    if (isset($_POST['search'])) {
+                                        $ftot = 0;
+                                        $fprof = 0;
+                                        $product_id = $_POST['product_id'];
+                                        $where = "WHERE q.delete_status = 0 AND i.delete_status = 0"; // <-- add invoice delete_status check
+                                    
+                                        if ($product_id != '') {
+                                            $where .= " AND q.product_id = '" . $product_id . "'";
                                         }
+
+                                        $sql = "SELECT q.product_id, q.inv_id, SUM(q.rate) AS total_sale_price, SUM(q.quantity) AS total_qty 
+            FROM tbl_quot_inv_items q
+            JOIN tbl_invoice i ON i.inv_no = q.inv_id
+            $where
+            GROUP BY q.product_id, q.inv_id";
+                                    } else {
+                                        $sql = "SELECT q.product_id, q.inv_id, SUM(q.rate) AS total_sale_price, SUM(q.quantity) AS total_qty 
+            FROM tbl_quot_inv_items q
+            JOIN tbl_invoice i ON i.inv_no = q.inv_id
+            WHERE q.delete_status = 0 AND i.delete_status = 0
+            GROUP BY q.product_id, q.inv_id";
+                                    }
 
 
                                     $statement = $conn->prepare($sql);
                                     // print_r($statement);
                                     $statement->execute();
-// $item = $statement->fetchAll();
+                                    // $item = $statement->fetchAll();
 // print_r($item);
-
+                                    
                                     while ($item = $statement->fetch(PDO::FETCH_ASSOC)) {
 
                                         $sql1 = "SELECT * FROM tbl_product where id='" . $item['product_id'] . "   '";
@@ -169,8 +171,8 @@ require_once('../assets/constants/fetch-my-info.php');
                                         $statement1 = $conn->prepare($sql1);
                                         $statement1->execute();
                                         $row1 = $statement1->fetch(PDO::FETCH_ASSOC);
-                                        
-                                                   
+
+
                                         $sql7 = "SELECT * FROM tbl_product_grp where id='" . $row1['group_id'] . "'";
 
 
@@ -181,37 +183,44 @@ require_once('../assets/constants/fetch-my-info.php');
 
 
                                         $no += 1;
-                                    ?>
+                                        ?>
 
                                         <tr>
                                             <td><?= $no; ?></td>
-                                              <td><?php echo htmlspecialchars($item['inv_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?php echo htmlspecialchars($row7['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?php echo $record_website['currency_symbol'] . number_format1($row1['purchase_gst'], 2, '.', ','); ?>-/</td>
-                                         <td><?php echo $record_website['currency_symbol'] . number_format1($row1['selling_gst'], 2, '.', ','); ?>-/</td>
+                                            <td><?php echo htmlspecialchars($item['inv_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($row1['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($row7['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td><?php echo $record_website['currency_symbol'] . number_format1($row1['purchase_gst'], 2, '.', ','); ?>-/
+                                            </td>
+                                            <td><?php echo $record_website['currency_symbol'] . number_format1($row1['selling_gst'], 2, '.', ','); ?>-/
+                                            </td>
                                             <td><?= $item['total_qty']; ?></td>
-                                            <td><?php echo $record_website['currency_symbol'];?><?= number_format1(($tot=$row1['selling_gst'] * $item['total_qty']),2); ?>-/</td>
-                                            
-                                      <?php
-    $purchase_gst = (float)$row1['purchase_gst'];
-    $total_qty = (int)$item['total_qty'];
-    $prop = $purchase_gst * $total_qty;
-    $selling_gst = (float)$row1['selling_gst'] ;
-    $sell =$selling_gst*$total_qty;
-    $total_pro= $sell-$prop ;
-    // print_r($total_pro);
-    // echo "Purchase GST: $purchase_gst<br>";
-    // echo "Total Qty: $total_qty<br>";
-    // echo "Total Purchase Cost: $prop<br>";
-?>
-                                            <td><?php echo $record_website['currency_symbol'];?><?= number_format($total_pro,2); ?>-/</td>
+                                            <td><?php echo $record_website['currency_symbol']; ?><?= number_format1(($tot = $row1['selling_gst'] * $item['total_qty']), 2); ?>-/
+                                            </td>
+
+                                            <?php
+                                            $purchase_gst = (float) $row1['purchase_gst'];
+                                            $total_qty = (int) $item['total_qty'];
+                                            $prop = $purchase_gst * $total_qty;
+                                            $selling_gst = (float) $row1['selling_gst'];
+                                            $sell = $selling_gst * $total_qty;
+                                            $total_pro = $sell - $prop;
+                                            // print_r($total_pro);
+                                            // echo "Purchase GST: $purchase_gst<br>";
+                                            // echo "Total Qty: $total_qty<br>";
+                                            // echo "Total Purchase Cost: $prop<br>";
+                                            ?>
+                                            <td><?php echo $record_website['currency_symbol']; ?><?= number_format($total_pro, 2); ?>-/
+                                            </td>
                                         </tr>
-                                    <?php 
-                                    
-                                    $ftot+=$tot;
-                                    $fprof+=$prof;
-                                    
+                                        <?php
+
+                                        $ftot += $tot;
+                                        $fprof += $prof;
+
                                     } ?>
                                 </tbody>
                                 <tfoot>
@@ -221,10 +230,12 @@ require_once('../assets/constants/fetch-my-info.php');
                                         <th></th>
                                         <th></th>
                                         <th></th>
-                                         <th></th>
+                                        <th></th>
                                         <th>Total</th>
-                                      <th><?php echo $record_website['currency_symbol'] . number_format1($ftot, 2, '.', ','); ?>-/</th>
-<th><?php echo $record_website['currency_symbol'] . number_format1($fprof, 2, '.', ','); ?>-/</th>
+                                        <th><?php echo $record_website['currency_symbol'] . number_format1($ftot, 2, '.', ','); ?>-/
+                                        </th>
+                                        <th><?php echo $record_website['currency_symbol'] . number_format1($fprof, 2, '.', ','); ?>-/
+                                        </th>
 
 
 
@@ -278,13 +289,13 @@ require_once('../assets/constants/fetch-my-info.php');
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.select2').select2();
     });
 </script>
 
 <script>
-    $('form').on("change", 'select[name^="p_group_name"]', function(event) {
+    $('form').on("change", 'select[name^="p_group_name"]', function (event) {
         var group_id = $(this).val();
         $('#product_id').html('<option value="" >Select one </option>');
         $.ajax({
@@ -294,7 +305,7 @@ require_once('../assets/constants/fetch-my-info.php');
             data: {
                 group_id: group_id
             },
-            success: function(data) {
+            success: function (data) {
                 for (var i = 0; i < data['products'].length; i++) {
                     var p_id = data['products'][i][0];
                     var p_name = data['products'][i][2];

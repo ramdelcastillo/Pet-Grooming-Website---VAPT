@@ -24,21 +24,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       // Form se values le rahe hain
       $id = $_POST['id'];
 
-      $stmt = $conn->prepare("
-          SELECT name FROM tbl_product
-          WHERE id = ? AND delete_status = 0
-      ");
-
-      $stmt->execute([$id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
-        header('location:../productdisplay.php');
-        exit;
-      }
-
-
       $new_stock = $_POST['openning_stock'];
 
       if (!filter_var($new_stock, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1, "max_range" => 10000]])) {
@@ -47,7 +32,7 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit;
       }
 
-      $query = "SELECT openning_stock FROM tbl_product WHERE id = :id";
+      $query = "SELECT openning_stock FROM tbl_product WHERE id = :id AND exp = 0";
       $stmt = $conn->prepare($query);
       $stmt->bindParam(':id', $id, PDO::PARAM_INT);
       $stmt->execute();
@@ -138,80 +123,13 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     if (isset($_POST['btn_edit'])) {
       $id = $_POST['id'];
       $group_id = $_POST['group_id'];
-
-      $stmt = $conn->prepare("
-          SELECT name FROM tbl_product
-          WHERE id = ? AND delete_status = 0
-      ");
-
-      $stmt->execute([$id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
-        header('location:../productdisplay.php');
-        exit;
-      }
-
-      $stmt = $conn->prepare("
-          SELECT name FROM tbl_product_grp
-          WHERE id = ? and delete_status = 0
-      ");
-
-      $stmt->execute([$group_id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
-        header('location:../productdisplay.php');
-        exit;
-      }
-
-      $name = $_POST['name'];
-
-      $stmt = $conn->prepare("
-          SELECT id FROM tbl_product
-          WHERE name = ? AND id != ? AND delete_status = 0
-      ");
-      $stmt->execute([$name, $id]);
-      $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if ($duplicate) {
-        $_SESSION['error'] = "Product name already exists";
-        header('location:../productdisplay.php');
-        exit;
-      }
-
-
+      $name = trim($_POST['name']);
       $pid = htmlspecialchars($_POST['pid']);
-
- 
-
       $exp_date = $_POST['exp_date'];
-      $d = DateTime::createFromFormat('Y-m-d', $exp_date);
-
-      if (!$d || $d->format('Y-m-d') !== $exp_date) {
-        $exp_date = null;
-      }
-
       $gst_array = $_POST['gst'] ?? [];
-      $gst = isset($gst_array[0]) ? (int) $gst_array[0] : 0; // cast to int, default 0
-
-      $stmt = $conn->prepare("
-        SELECT percentage FROM tbl_tax
-        WHERE id = ? AND delete_status = 0
-      ");
-      $stmt->execute([$gst]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
-        header('location:../productdisplay.php');
-        exit;
-      }
+      $gst = isset($gst_array[0]) ? (int) $gst_array[0] : 0;
       $hsn = $_POST['hsn'];
       $details = $_POST['details'];
-      $perc = (int) $record['percentage'];
       $exp = (int) $_POST['exp'];
       $purchase_price = (float) $_POST['purchase_price'];
       $unit_price = (float) $_POST['unit_price'];
@@ -219,21 +137,24 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
       $errors = [];
 
-
       if (!preg_match("/^\d{5,6}$/", $hsn)) {
         $errors[] = 'Invalid HSN: Must be a 5–6 digit numeric code (no spaces or symbols)';
       }
-      if (strlen($details) > 1500) {
+      if (strlen($name) > 1500) {
+        $errors[] = 'Invalid product name';
+      }
+      if (strlen($details) > 2500) {
         $errors[] = 'Invalid product name';
       }
       if (!preg_match('/^[01]$/', $exp)) {
         $errors[] = 'Invalid value for exp: Must be 0 or 1';
       }
-      if (!filter_var($purchase_price, FILTER_VALIDATE_FLOAT) && $purchase_price !== '0') {
-        $errors[] = 'Invalid purchase price: Must be a number';
+      if ((!filter_var($purchase_price, FILTER_VALIDATE_FLOAT) && $purchase_price !== '0') || $purchase_price > 1000000) {
+        $errors[] = 'Invalid purchase price: Must be a number not exceeding 1,000,000';
       }
-      if (!filter_var($unit_price, FILTER_VALIDATE_FLOAT) && $unit_price !== '0') {
-        $errors[] = 'Invalid unit price: Must be a number';
+
+      if ((!filter_var($unit_price, FILTER_VALIDATE_FLOAT) && $unit_price !== '0') || $unit_price > 1000000) {
+        $errors[] = 'Invalid unit price: Must be a number not exceeding 1,000,000';
       }
       if ($min_stock < 1 || $min_stock > 10000) {
         $errors[] = 'Invalid minimum stock: Must be between 1 and 10,000';
@@ -243,6 +164,49 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         header('location:../productdisplay.php');
         exit();
       }
+
+      $d = DateTime::createFromFormat('Y-m-d', $exp_date);
+      if (!$d || $d->format('Y-m-d') !== $exp_date) {
+        $exp_date = null;
+      }
+
+      $stmt = $conn->prepare("
+      SELECT
+        (SELECT COUNT(*) FROM tbl_product WHERE id = ? AND delete_status = 0) AS product_exists,
+        (SELECT COUNT(*) FROM tbl_product_grp WHERE id = ? AND delete_status = 0) AS group_exists,
+        (SELECT COUNT(*) FROM tbl_tax WHERE id = ? AND delete_status = 0) AS gst_exists,
+        (SELECT COUNT(*) FROM tbl_product WHERE name = ? AND id != ? AND delete_status = 0) AS duplicate_exists
+    ");
+      $stmt->execute([$id, $group_id, $gst, $name, $id]);
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($result['product_exists'] == 0) {
+        $_SESSION['error'] = "Error: Product not found";
+        header('location:../productdisplay.php');
+        exit;
+      }
+      if ($result['group_exists'] == 0) {
+        $_SESSION['error'] = "Error: Product group not found";
+        header('location:../productdisplay.php');
+        exit;
+      }
+      if ($result['gst_exists'] == 0) {
+        $_SESSION['error'] = "Error: Invalid GST";
+        header('location:../productdisplay.php');
+        exit;
+      }
+      if ($result['duplicate_exists'] > 0) {
+        $_SESSION['error'] = "Product name already exists";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      $stmt = $conn->prepare("
+      SELECT percentage FROM tbl_tax WHERE id = ? AND delete_status = 0
+      ");
+      $stmt->execute([$gst]);
+      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+      $perc = (int) $record['percentage'];
 
 
       if ($exp === 0) { // Product
@@ -307,24 +271,19 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $id = $_POST['del_id'];
 
       $stmt = $conn->prepare("
-          SELECT name FROM tbl_product
-          WHERE id = ? AND delete_status = 0
+        UPDATE tbl_product
+        SET delete_status = 1
+        WHERE id = ? AND delete_status = 0
       ");
-
       $stmt->execute([$id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      if (!$record) {
-        $_SESSION['error'] = "Error";
+      if ($stmt->rowCount() == 0) {
+        $_SESSION['error'] = "Error: Product not found or already deleted";
         header('location:../productdisplay.php');
         exit;
       }
 
-      $stmt = $conn->prepare("UPDATE tbl_product SET delete_status=1 WHERE id=:id");
-      $stmt->bindParam(':id', $id);
-      $stmt->execute();
-
-      $_SESSION['success'] = "Product Deleted Succesfully";
+      $_SESSION['success'] = "Product Deleted Successfully";
       header('location:../productdisplay.php');
       exit;
     }

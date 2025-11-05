@@ -34,24 +34,26 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         $website_logo = $_POST['old_website_image'];
       }
 
+      $password_raw = $_POST['password'];
+      $password_confirm = $_POST['cpassword'];
 
-      if (empty($_POST['password']) || empty($_POST['cpassword'])) {
+      if (empty($password_raw) || empty($password_confirm)) {
         $_SESSION['error'] = "Password fields must not be empty";
         header('location:../view_user.php');
         exit;
       }
 
-      if ($_POST['password'] != $_POST['cpassword']) {
+      if ($password_raw !== $password_confirm) {
         $_SESSION['error'] = "Mismatching passwords";
         header('location:../view_user.php');
         exit;
       }
 
-      $email = $_POST['email'];
       $fname = $_POST['fname'];
       $lname = $_POST['lname'];
-      $address = $_POST['address'];
+      $email = $_POST['email'];
       $contact = $_POST['contact'];
+      $address = $_POST['address'];
 
       $errors = [];
 
@@ -83,39 +85,32 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit();
       }
 
+      $group_id = htmlspecialchars($_POST['group_id']);
+
       $stmt = $conn->prepare("
-          SELECT EXISTS(
-              SELECT 1 FROM tbl_admin
-              WHERE email = ? AND delete_status = 0
-          ) AS email_exists
+        SELECT 
+            (SELECT COUNT(*) 
+            FROM tbl_admin 
+            WHERE email = ? AND delete_status = 0) AS email_count,
+            (SELECT COUNT(*) 
+            FROM tbl_groups 
+            WHERE id = ? AND delete_status = 0) AS group_count
       ");
 
-      $stmt->execute([$email]);
+      $stmt->execute([$email, $group_id]);
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      if ($result['email_exists']) {
+      if ($result['email_count'] > 0) {
         $_SESSION['error'] = "Email already exists";
         header('location:../view_user.php');
         exit;
       }
 
-      $group_id = htmlspecialchars($_POST['group_id']);
-
-      $stmt = $conn->prepare("
-            SELECT name FROM tbl_groups
-            WHERE id = ? AND delete_status = 0
-          ");
-
-      $stmt->execute([$group_id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
+      if ($result['group_count'] == 0) {
+        $_SESSION['error'] = "Error: Invalid group";
         header('location:../view_user.php');
         exit;
       }
-
-      $password_raw = $_POST['password'];
 
       $options = [
         'cost' => 12,
@@ -201,13 +196,16 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         $website_logo = $_POST['old_website_image'];
       }
 
-      if (empty($_POST['password']) || empty($_POST['cpassword'])) {
+      $password_raw = $_POST['password'];
+      $password_confirm = $_POST['cpassword'];
+
+      if (empty($password_raw) || empty($password_confirm)) {
         $_SESSION['error'] = "Password fields must not be empty";
         header('location:../view_user.php');
         exit;
       }
 
-      if ($_POST['password'] != $_POST['cpassword']) {
+      if ($password_raw !== $password_confirm) {
         $_SESSION['error'] = "Mismatching passwords";
         header('location:../view_user.php');
         exit;
@@ -242,55 +240,47 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         if (strlen($address) > 500) {
           $errors[] = 'Address must not exceed 500 characters';
         }
-
         if (!empty($errors)) {
           $_SESSION['error'] = implode('<br>', $errors);
           header('location:../view_user.php');
           exit();
         }
 
+        $group_id = htmlspecialchars($_POST['group_id']);
+
         $stmt = $conn->prepare("
-            SELECT email FROM tbl_admin
-            WHERE id = ? and delete_status = 0
+        SELECT
+            (SELECT COUNT(*) 
+            FROM tbl_admin 
+            WHERE id = ? AND delete_status = 0) AS id_exists,
+            (SELECT COUNT(*) 
+            FROM tbl_admin 
+            WHERE email = ? AND id != ? AND delete_status = 0) AS email_duplicate,
+            (SELECT COUNT(*) 
+            FROM tbl_groups 
+            WHERE id = ? AND delete_status = 0) AS group_exists
         ");
 
-        $stmt->execute([$id]);
-        $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute([$id, $email, $id, $group_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$record) {
-          $_SESSION['error'] = "Error";
+        if ($result['id_exists'] == 0) {
+          $_SESSION['error'] = "Error: User not found";
           header('location:../view_user.php');
           exit;
         }
 
-        $stmt = $conn->prepare("
-            SELECT id FROM tbl_admin
-            WHERE email = ? AND id != ? AND delete_status = 0
-        ");
-        $stmt->execute([$email, $id]);
-        $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
+        $duplicate = $result['email_duplicate'];
 
         if (!$duplicate) {
-          $group_id = htmlspecialchars($_POST['group_id']);
-
-          $stmt = $conn->prepare("
-            SELECT name FROM tbl_groups
-            WHERE id = ? AND delete_status = 0
-          ");
-
-          $stmt->execute([$group_id]);
-          $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-          if (!$record) {
-            $_SESSION['error'] = "Error";
+          if ($result['group_exists'] == 0) {
+            $_SESSION['error'] = "Error: Group not found";
             header('location:../view_user.php');
             exit;
           }
 
-          $password_raw = $_POST['password'];
-
           $options = [
-            'cost' => 12, // adjust cost if needed
+            'cost' => 12,
           ];
 
           $password = password_hash($password_raw, PASSWORD_BCRYPT, $options);
@@ -310,12 +300,9 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           $stmt->bindParam(':id', $id);
           $stmt->execute();
 
-
           $execute = $stmt->execute();
           if ($execute == true) {
-            $temp_password = "123"; 
-            $hashed = password_hash($temp_password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $_SESSION['success'] = "User Updated Successfully. New Hash: " . $hashed;
+            $_SESSION['success'] = "User Updated Successfully.";
             header('location:../view_user.php');
             exit;
           }
@@ -349,34 +336,19 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       }
 
       try {
-        $conn->beginTransaction();
         $stmt = $conn->prepare("
-            UPDATE tbl_invoice 
-            SET delete_status = 1 
-            WHERE user = :userId
+          UPDATE tbl_admin a
+          LEFT JOIN tbl_invoice i ON i.user = a.id
+          LEFT JOIN tbl_quot_inv_items qii ON qii.inv_id = i.inv_no
+          SET 
+              a.delete_status = 1,
+              i.delete_status = 1,
+              qii.delete_status = 1
+          WHERE a.id = ?
         ");
-        $stmt->bindParam(':userId', $userId);
-        $stmt->execute();
 
-        $stmt = $conn->prepare("
-            UPDATE tbl_quot_inv_items 
-            SET delete_status = 1
-            WHERE inv_id IN (
-                SELECT inv_no FROM tbl_invoice WHERE user = :userId
-            )
-        ");
-        $stmt->bindParam(':userId', $userId);
-        $stmt->execute();
+        $stmt->execute([$userId]);
 
-        $stmt = $conn->prepare("
-            UPDATE tbl_admin 
-            SET delete_status = 1 
-            WHERE id = :userId
-        ");
-        $stmt->bindParam(':userId', $userId);
-        $stmt->execute();
-
-        $conn->commit();
 
         $_SESSION['success'] = "User deleted successfully";
         header('location:../view_user.php');

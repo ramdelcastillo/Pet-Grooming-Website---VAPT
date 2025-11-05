@@ -80,25 +80,25 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $id = $_POST['id'];
 
       $stmt = $conn->prepare("
-          SELECT name FROM tbl_product_grp
-          WHERE id = ? and delete_status = 0
+        SELECT
+            (SELECT COUNT(*) 
+            FROM tbl_product_grp 
+            WHERE id = ? AND delete_status = 0) AS id_exists,
+            (SELECT COUNT(*) 
+            FROM tbl_product_grp 
+            WHERE name = ? AND id != ? AND delete_status = 0) AS name_duplicate
       ");
 
-      $stmt->execute([$id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
+      $stmt->execute([$id, $name, $id]);
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      if (!$record) {
-        $_SESSION['error'] = "Error";
+      if ($result['id_exists'] == 0) {
+        $_SESSION['error'] = "Error: Category not found";
         header('Location: ../category.php');
         exit;
       }
 
-      $stmt = $conn->prepare("
-          SELECT id FROM tbl_product_grp
-          WHERE name = ? AND id != ? AND delete_status = 0
-      ");
-      $stmt->execute([$name, $id]);
-      $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
+      $duplicate = $result['name_duplicate'];
 
       if (!$duplicate) {
         $allowed = [
@@ -128,7 +128,7 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           exit;
         }
       } elseif ($duplicate) {
-        $_SESSION['error'] = "Tax name already exists";
+        $_SESSION['error'] = "Category name already exists";
         header('location:../category.php');
         exit;
       } else {

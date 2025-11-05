@@ -27,33 +27,31 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $state = (int) $_POST['state'];
       $gstin = $_POST['gstin'];
 
-      $stmt = $conn->prepare("SELECT COUNT(*) FROM tbl_states WHERE id = :state_id");
+      $stmt = $conn->prepare("
+        SELECT
+            (SELECT COUNT(*) FROM tbl_states WHERE id = :state_id) AS state_exists,
+            (SELECT COUNT(*) FROM tbl_customer WHERE cust_mob = :cust_mob) AS mob_exists,
+            (SELECT COUNT(*) FROM tbl_customer WHERE cust_email = :cust_email) AS email_exists
+      ");
+
       $stmt->bindParam(':state_id', $state, PDO::PARAM_INT);
+      $stmt->bindParam(':cust_mob', $cust_mob);
+      $stmt->bindParam(':cust_email', $cust_email);
       $stmt->execute();
 
-      if ($stmt->fetchColumn() == 0) {
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($result['state_exists'] == 0) {
         $_SESSION['error'] = 'Invalid State: Selected state does not exist.';
         header('location:../view_customer.php');
         exit();
       }
-
-      $stmt2 = $conn->prepare("
-      SELECT 
-          (SELECT COUNT(*) FROM tbl_customer WHERE cust_mob = :cust_mob) AS mob_exists,
-          (SELECT COUNT(*) FROM tbl_customer WHERE cust_email = :cust_email) AS email_exists
-      ");
-      $stmt2->bindParam(':cust_mob', $cust_mob);
-      $stmt2->bindParam(':cust_email', $cust_email);
-      $stmt2->execute();
-
-      $result = $stmt2->fetch(PDO::FETCH_ASSOC);
 
       if ($result['mob_exists'] > 0) {
         $_SESSION['error'] = 'This contact number is already registered.';
         header('location:../view_customer.php');
         exit();
       }
-
       if ($result['email_exists'] > 0) {
         $_SESSION['error'] = 'This email address is already registered.';
         header('location:../view_customer.php');
@@ -175,8 +173,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     }
 
-
-
     if (isset($_POST['btn_update'])) {
       $cust_id = (int) $_POST['id'];
       $cust_name = $_POST['custname'];
@@ -187,42 +183,32 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $gstin = $_POST['gstin'];
 
       $stmt = $conn->prepare("
-          SELECT cust_name FROM tbl_customer 
-          WHERE cust_id = ? 
+        SELECT 
+            (SELECT COUNT(*) FROM tbl_customer WHERE cust_id = :cust_id) AS cust_exists,
+            (SELECT COUNT(*) FROM tbl_states WHERE id = :state_id) AS state_exists,
+            (SELECT COUNT(*) FROM tbl_customer WHERE cust_mob = :cust_mob AND cust_id != :cust_id) AS mob_exists,
+            (SELECT COUNT(*) FROM tbl_customer WHERE cust_email = :cust_email AND cust_id != :cust_id) AS email_exists
       ");
 
-      $stmt->execute([$cust_id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if (!$record) {
-        $_SESSION['error'] = "Error";
-        header('location:../view_customer.php');
-        exit;
-      }
-
-      // Check if state exists
-      $stmt = $conn->prepare("SELECT COUNT(*) FROM tbl_states WHERE id = :state_id");
+      $stmt->bindParam(':cust_id', $cust_id, PDO::PARAM_INT);
       $stmt->bindParam(':state_id', $state, PDO::PARAM_INT);
+      $stmt->bindParam(':cust_mob', $cust_mob);
+      $stmt->bindParam(':cust_email', $cust_email);
       $stmt->execute();
 
-      if ($stmt->fetchColumn() == 0) {
-        $_SESSION['error'] = 'Invalid State: Selected state does not exist.';
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($result['cust_exists'] == 0) {
+        $_SESSION['error'] = "Error: Customer not found";
         header('location:../view_customer.php');
         exit();
       }
 
-      // Check if contact number or email already exists (excluding this customer)
-      $stmt2 = $conn->prepare("
-      SELECT 
-          (SELECT COUNT(*) FROM tbl_customer WHERE cust_mob = :cust_mob AND cust_id != :cust_id) AS mob_exists,
-          (SELECT COUNT(*) FROM tbl_customer WHERE cust_email = :cust_email AND cust_id != :cust_id) AS email_exists
-    ");
-      $stmt2->bindParam(':cust_mob', $cust_mob);
-      $stmt2->bindParam(':cust_email', $cust_email);
-      $stmt2->bindParam(':cust_id', $cust_id, PDO::PARAM_INT);
-      $stmt2->execute();
-
-      $result = $stmt2->fetch(PDO::FETCH_ASSOC);
+      if ($result['state_exists'] == 0) {
+        $_SESSION['error'] = 'Invalid State: Selected state does not exist.';
+        header('location:../view_customer.php');
+        exit();
+      }
 
       if ($result['mob_exists'] > 0) {
         $_SESSION['error'] = 'This contact number is already registered to another customer.';
@@ -236,7 +222,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit();
       }
 
-      // Validation rules
       $errors = [];
 
       if (!preg_match("/^[a-zA-Z ]+$/", $cust_name)) {
@@ -265,7 +250,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         exit();
       }
 
-      // Proceed with update
       $stmt = $conn->prepare("
         UPDATE tbl_customer 
         SET cust_name = :cust_name,
@@ -311,28 +295,21 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $cust_id = $_POST['del_id'];
 
       $stmt = $conn->prepare("
-          SELECT cust_name FROM tbl_customer 
-          WHERE cust_id = ? 
+        DELETE c, i
+        FROM tbl_customer c
+        LEFT JOIN tbl_invoice i ON i.customer_id = c.cust_id
+        WHERE c.cust_id = ?
       ");
 
       $stmt->execute([$cust_id]);
-      $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      if (!$record) {
-        $_SESSION['error'] = "Error";
+      if ($stmt->rowCount() == 0) {
+        $_SESSION['error'] = "Error: Customer not found";
         header('location:../view_customer.php');
         exit;
       }
 
-      $stmt2 = $conn->prepare("UPDATE tbl_invoice SET delete_status = 1 WHERE customer_id = :cust_id");
-      $stmt2->bindParam(':cust_id', $cust_id);
-      $stmt2->execute();
-
-      $stmt = $conn->prepare("DELETE FROM tbl_customer WHERE cust_id = :cust_id");
-      $stmt->bindParam(':cust_id', $cust_id);
-      $stmt->execute();
-
-      $_SESSION['success'] = "Customer and respective invoices were deleted succesfully";
+      $_SESSION['success'] = "Customer and respective invoices were deleted successfully";
       header('location:../view_customer.php');
       exit;
     }

@@ -119,35 +119,32 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     if (isset($_POST['del_id'])) {
       $group_id = $_POST['del_id'];
 
-      $stmt = $conn->prepare("SELECT id FROM tbl_groups WHERE id = ? AND delete_status = 0");
+      $stmt = $conn->prepare("
+        SELECT g.id, COUNT(a.id) AS active_users
+        FROM tbl_groups g
+        LEFT JOIN tbl_admin a ON a.role_id = g.id AND a.delete_status = 0
+        WHERE g.id = ? AND g.delete_status = 0
+        GROUP BY g.id
+      ");
       $stmt->execute([$group_id]);
       $group = $stmt->fetch(PDO::FETCH_ASSOC);
 
       if (!$group) {
-        $_SESSION['error'] = "Error";
+        $_SESSION['error'] = "Error: Role not found";
         header('location:../view_role.php');
         exit;
       }
 
-      $stmt = $conn->prepare("
-        SELECT COUNT(*) AS active_users 
-        FROM tbl_admin 
-        WHERE role_id = ? AND delete_status = 0
-      ");
-      $stmt->execute([$group_id]);
-      $active = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if ($active['active_users'] > 0) {
+      if ($group['active_users'] > 0) {
         $_SESSION['error'] = "Cannot delete this role. Some users assigned to it are still active.";
         header('location:../view_role.php');
         exit;
       }
 
-      $stmt = $conn->prepare("UPDATE tbl_groups SET delete_status=1 WHERE id=:id");
-      $stmt->bindParam(':id', $_POST['del_id']);
-      $stmt->execute();
+      $stmt = $conn->prepare("UPDATE tbl_groups SET delete_status = 1 WHERE id = ?");
+      $stmt->execute([$group_id]);
 
-      $_SESSION['success'] = "Role Deleted Succesfully";
+      $_SESSION['success'] = "Role Deleted Successfully";
       header('location:../view_role.php');
       exit;
     }
