@@ -4,6 +4,9 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
+
 ?>
 <?php
 
@@ -78,6 +81,7 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
                             <div class="form-row">
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <input type="hidden" class="form-control " name="id" value="<?= $product['id']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
                                     <label for="validationCustom03">Serial No<span class="text-danger">*</span></label>
 

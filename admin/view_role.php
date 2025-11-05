@@ -4,6 +4,8 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 
 
@@ -196,25 +198,32 @@ require_once('../assets/constants/fetch-my-info.php');
 
 
 <script>
-    function delForm(event, id, file) {
-        event.preventDefault(); // Prevent the default link behavior
+var csrfToken = '<?php echo $csrf_token; ?>';
 
-        // Create a form dynamically
-        var form = document.createElement('form');
-        form.action = file;
-        form.method = 'post';
+function delForm(event, id, file) {
+    event.preventDefault(); // Prevent the default link behavior
 
-        // Create a hidden input field for the ID
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'del_id';
-        input.value = id;
+    // Create a form dynamically
+    var form = document.createElement('form');
+    form.action = file;
+    form.method = 'post';
 
-        // Append the input field to the form
-        form.appendChild(input);
+    // Hidden input for ID
+    var inputId = document.createElement('input');
+    inputId.type = 'hidden';
+    inputId.name = 'del_id';
+    inputId.value = id;
+    form.appendChild(inputId);
 
-        // Append the form to the body and submit it
-        document.body.appendChild(form);
-        form.submit();
-    }
+    // Hidden input for CSRF token
+    var inputCsrf = document.createElement('input');
+    inputCsrf.type = 'hidden';
+    inputCsrf.name = 'csrf_token';
+    inputCsrf.value = csrfToken;
+    form.appendChild(inputCsrf);
+
+    // Append form to body and submit
+    document.body.appendChild(form);
+    form.submit();
+}
 </script>

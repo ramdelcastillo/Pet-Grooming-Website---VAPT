@@ -19,6 +19,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (isset($_POST['btn_save'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../tax.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $name = trim($_POST['name']);
       $percentage_raw = $_POST['percentage'];
 
@@ -71,6 +79,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     }
     if (isset($_POST['btn_edit'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../tax.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $id = $_POST['id'];
       $name = $_POST['name'];
 
@@ -128,6 +144,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['del_id'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../tax.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $stmt = $conn->prepare("
         UPDATE tbl_tax
         SET delete_status = 1

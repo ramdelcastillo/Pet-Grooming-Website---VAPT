@@ -4,6 +4,8 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 
 
@@ -164,6 +166,8 @@ $row14 = $statement->fetchAll();
             </button>
          </div>
          <form action="operation/product.php" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
             <input type="hidden" class="form-control" name="id" required value="<?php echo $row['id']; ?>">
             <!-- Employee Name -->
             <div class="col-md-12 mb-2 mt-2">
@@ -292,6 +296,13 @@ $row14 = $statement->fetchAll();
 
         // Append the input field to the form
         form.appendChild(input);
+
+                  // Hidden input for CSRF token
+        var inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = 'csrf_token';
+        inputCsrf.value = '<?php echo $csrf_token; ?>';
+        form.appendChild(inputCsrf);
 
         // Append the form to the body and submit it
         document.body.appendChild(form);

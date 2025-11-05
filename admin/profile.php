@@ -1,9 +1,13 @@
- <?php
+<?php
 //error_reporting(0);
 require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token']
 ?>
 
 <?php
@@ -15,6 +19,16 @@ $result = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <?php
 if (isset($_POST['update'])) {
+  // CSRF token check
+  if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    $_SESSION['error'] = "Invalid CSRF token";
+    header('Location: profile.php');
+    exit;
+  }
+
+  unset($_SESSION['csrf_token']);
+
+
   $email = $_POST['email'];
   $id = $_SESSION['id'];
 
@@ -284,7 +298,7 @@ if (isset($_POST['update'])) {
                       <label for="validationCustom03">First Name<span class="text-danger">*</span></label>
                       <input type="text" class="form-control" name="fname"
                         value="<?php echo htmlspecialchars($result['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
-
+                      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                       <div class="invalid-feedback">
                       </div>
                     </div>

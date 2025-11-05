@@ -20,12 +20,47 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (isset($_POST['btn_save'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_customer.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $cust_name = $_POST['custname'];
       $cust_mob = $_POST['customer_mobno'];
       $cust_email = $_POST['c_email'];
       $cust_address = $_POST['c_address'];
       $state = (int) $_POST['state'];
       $gstin = $_POST['gstin'];
+
+      $errors = [];
+
+      if (!preg_match("/^[a-zA-Z ]+$/", $cust_name)) {
+        $errors[] = 'Invalid customer name: Only letters and spaces allowed';
+      } elseif (strlen($cust_name) > 50) {
+        $errors[] = 'Invalid customer name: Must not exceed 50 characters';
+      }
+      if (!filter_var($cust_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid customer email address';
+      } elseif (strlen($cust_email) > 30) {
+        $errors[] = 'Invalid customer email address: Must not exceed 30 characters';
+      }
+      if (!preg_match("/^\d{10}$/", $cust_mob)) {
+        $errors[] = 'Invalid customer contact number: Must be exactly 10 digits';
+      }
+      if (strlen($cust_address) > 50) {
+        $errors[] = 'Address must not exceed 50 characters';
+      }
+      if (!preg_match("/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/", $gstin)) {
+        $errors[] = 'Invalid GSTIN: Must follow the 15-character GST format (e.g., 27AAECR1234F1Z2)';
+      }
+      if (!empty($errors)) {
+        $_SESSION['error'] = implode('<br>', $errors);
+        header('location:../view_customer.php');
+        exit();
+      }
 
       $stmt = $conn->prepare("
         SELECT
@@ -54,33 +89,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       }
       if ($result['email_exists'] > 0) {
         $_SESSION['error'] = 'This email address is already registered.';
-        header('location:../view_customer.php');
-        exit();
-      }
-
-      $errors = [];
-
-      if (!preg_match("/^[a-zA-Z ]+$/", $cust_name)) {
-        $errors[] = 'Invalid customer name: Only letters and spaces allowed';
-      } elseif (strlen($cust_name) > 50) {
-        $errors[] = 'Invalid customer name: Must not exceed 50 characters';
-      }
-      if (!filter_var($cust_email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid customer email address';
-      } elseif (strlen($cust_email) > 30) {
-        $errors[] = 'Invalid customer email address: Must not exceed 30 characters';
-      }
-      if (!preg_match("/^\d{10}$/", $cust_mob)) {
-        $errors[] = 'Invalid customer contact number: Must be exactly 10 digits';
-      }
-      if (strlen($cust_address) > 50) {
-        $errors[] = 'Address must not exceed 50 characters';
-      }
-      if (!preg_match("/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/", $gstin)) {
-        $errors[] = 'Invalid GSTIN: Must follow the 15-character GST format (e.g., 27AAECR1234F1Z2)';
-      }
-      if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
         header('location:../view_customer.php');
         exit();
       }
@@ -174,6 +182,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['btn_update'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_customer.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $cust_id = (int) $_POST['id'];
       $cust_name = $_POST['custname'];
       $cust_mob = $_POST['customer_mobno'];
@@ -181,6 +197,34 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $cust_address = $_POST['c_address'];
       $state = (int) $_POST['state'];
       $gstin = $_POST['gstin'];
+
+      $errors = [];
+
+      if (!preg_match("/^[a-zA-Z ]+$/", $cust_name)) {
+        $errors[] = 'Invalid customer name: Only letters and spaces allowed';
+      } elseif (strlen($cust_name) > 50) {
+        $errors[] = 'Invalid customer name: Must not exceed 50 characters';
+      }
+      if (!filter_var($cust_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid customer email address';
+      } elseif (strlen($cust_email) > 30) {
+        $errors[] = 'Invalid customer email address: Must not exceed 30 characters';
+      }
+      if (!preg_match("/^\d{10}$/", $cust_mob)) {
+        $errors[] = 'Invalid customer contact number: Must be exactly 10 digits';
+      }
+      if (strlen($cust_address) > 50) {
+        $errors[] = 'Address must not exceed 50 characters';
+      }
+      if (!preg_match("/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/", $gstin)) {
+        $errors[] = 'Invalid GSTIN: Must follow the 15-character GST format (e.g., 27AAECR1234F1Z2)';
+      }
+
+      if (!empty($errors)) {
+        $_SESSION['error'] = implode('<br>', $errors);
+        header('location:../view_customer.php');
+        exit();
+      }
 
       $stmt = $conn->prepare("
         SELECT 
@@ -218,34 +262,6 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
       if ($result['email_exists'] > 0) {
         $_SESSION['error'] = 'This email address is already registered to another customer.';
-        header('location:../view_customer.php');
-        exit();
-      }
-
-      $errors = [];
-
-      if (!preg_match("/^[a-zA-Z ]+$/", $cust_name)) {
-        $errors[] = 'Invalid customer name: Only letters and spaces allowed';
-      } elseif (strlen($cust_name) > 50) {
-        $errors[] = 'Invalid customer name: Must not exceed 50 characters';
-      }
-      if (!filter_var($cust_email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid customer email address';
-      } elseif (strlen($cust_email) > 30) {
-        $errors[] = 'Invalid customer email address: Must not exceed 30 characters';
-      }
-      if (!preg_match("/^\d{10}$/", $cust_mob)) {
-        $errors[] = 'Invalid customer contact number: Must be exactly 10 digits';
-      }
-      if (strlen($cust_address) > 50) {
-        $errors[] = 'Address must not exceed 50 characters';
-      }
-      if (!preg_match("/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/", $gstin)) {
-        $errors[] = 'Invalid GSTIN: Must follow the 15-character GST format (e.g., 27AAECR1234F1Z2)';
-      }
-
-      if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
         header('location:../view_customer.php');
         exit();
       }
@@ -292,6 +308,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
 
     if (isset($_POST['del_id'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_customer.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $cust_id = $_POST['del_id'];
 
       $stmt = $conn->prepare("

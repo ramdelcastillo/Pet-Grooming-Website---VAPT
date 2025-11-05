@@ -1,22 +1,30 @@
 <?php
 session_start();
 
-require_once '/var/www/vendor/autoload.php';  
-$dotenv = Dotenv\Dotenv::createImmutable('/var/www/env'); 
-$dotenv->load(); 
+require_once '/var/www/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable('/var/www/env');
+$dotenv->load();
 
 $servername = $_ENV['DB_HOST'];
-$username   = $_ENV['DB_USER'];
-$password  = $_ENV['DB_PASS'];
-$dbname     = $_ENV['DB_NAME'];
+$username = $_ENV['DB_USER'];
+$password = $_ENV['DB_PASS'];
+$dbname = $_ENV['DB_NAME'];
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+
     // print_r($_POST);exit;
     $response = array();
 
     try {
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $_SESSION['error'] = "Invalid CSRF token";
+            header('location:../view_order.php');
+            exit;
+        }
+
+        unset($_SESSION['csrf_token']);
+
         // Establish database connection
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -25,14 +33,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmt = $conn->prepare("SELECT * FROM tbl_invoice WHERE inv_no=:inv_no");
         $stmt->bindParam(':inv_no', $inv_no);
-
         $execute = $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $inv_due_total = $row['due_total']; 
+        if (!$row) {
+            $_SESSION['error'] = "Invoice does not exist";
+            header('location:../view_order.php');
+            exit;
+        }
+
+        $inv_due_total = $row['due_total'];
         $ptype = $_POST['ptype'];
-        $inv_paid_amt = $row['paid_amt']; 
+        $inv_paid_amt = $row['paid_amt'];
         $insta_amt = $_POST['insta_amt'];
 
         if ($inv_due_total === 0) {
@@ -59,7 +72,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $sql = "INSERT INTO tbl_installement (inv_no, added_date, insta_amt, due_total, ptype)
         VALUES (:inv_no, :added_date, :insta_amt, :due_total, :ptype)";
-
         $stmt = $conn->prepare($sql);
 
         $stmt->bindParam(':inv_no', $inv_no);
@@ -67,22 +79,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':insta_amt', $insta_amt);
         $stmt->bindParam(':due_total', $inv_due_total);
         $stmt->bindParam(':ptype', $ptype);
-
         $stmt->execute();
 
         $paid = $inv_paid_amt + $insta_amt;
-
         $inv_due_total -= $insta_amt;
 
         $stmt = $conn->prepare("UPDATE tbl_invoice SET due_total = :due_total, paid_amt = :paid_amt WHERE inv_no = :inv_no");
         $stmt->bindParam(':due_total', $inv_due_total);
-
         $stmt->bindParam(':paid_amt', $paid);
-
         $stmt->bindParam(':inv_no', $inv_no);
-
-
         $execute = $stmt->execute();
+        
         $_SESSION['success'] = "record Updated";
         // If the execution reaches here, the insertion was successful
         $response['status'] = 'success';

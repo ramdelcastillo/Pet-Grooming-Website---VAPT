@@ -4,6 +4,8 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 
 <?php include('include/head.php'); ?>
@@ -221,6 +223,13 @@ require_once('../assets/constants/fetch-my-info.php');
 
         // Append the input field to the form
         form.appendChild(input);
+
+                  // Hidden input for CSRF token
+        var inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = 'csrf_token';
+        inputCsrf.value = '<?php echo $csrf_token; ?>';
+        form.appendChild(inputCsrf);
 
         // Append the form to the body and submit it
         document.body.appendChild(form);

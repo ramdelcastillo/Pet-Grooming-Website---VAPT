@@ -20,6 +20,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // print_r($_POST); exit;
     if (isset($_POST['btn_save'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_role.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       extract($_POST);
       $id = $_POST['id'];
 
@@ -49,7 +57,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
         }
 
 
-        $stmt = $conn->prepare("insert into tbl_groups(name,description)values('$assign_name','$description')");
+        $delete_status = 0;
+        $stmt = $conn->prepare("
+        INSERT INTO tbl_groups (name, description, delete_status) 
+        VALUES (:name, :description, :delete_status)
+        ");
+        $stmt->bindParam(':name', $assign_name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':delete_status', $delete_status, PDO::PARAM_INT);
         $stmt->execute();
         $last_id = $conn->lastInsertId();
         $id = $last_id;
@@ -57,10 +72,17 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
         //print_r($_POST);exit;
         $a = count($checkItem);
+        $stmt = $conn->prepare("
+        INSERT INTO tbl_permission_role (permission_id, group_id) 
+        VALUES (:permission_id, :group_id)
+        ");
+
         for ($i = 0; $i < $a; $i++) {
-          $stmt = $conn->prepare("insert into tbl_permission_role(permission_id,group_id)values('$checkItem[$i]','$id')");
+          $stmt->bindParam(':permission_id', $checkItem[$i], PDO::PARAM_INT);
+          $stmt->bindParam(':group_id', $id, PDO::PARAM_INT);
           $stmt->execute();
         }
+
 
         $_SESSION['success'] = "Role Added Succesfully";
         header('location:../view_role.php');
@@ -77,6 +99,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     }
     if (isset($_POST['btn_edit'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_role.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       extract($_POST);
       $id = $_POST['id'];
 
@@ -119,26 +149,44 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
           }
         }
 
-        $stmto = $conn->prepare("delete  from tbl_permission_role where group_id='" . $_POST['id'] . "'");
+        $id = $_POST['id'];
+
+        $stmto = $conn->prepare("
+        DELETE FROM tbl_permission_role 
+        WHERE group_id = :group_id
+        ");
+        $stmto->bindParam(':group_id', $id, PDO::PARAM_INT);
         $stmto->execute();
 
-        $stmt = $conn->prepare("UPDATE tbl_groups set name='$assign_name',description='$description' where id='" . $_POST['id'] . "'");
+
+        $stmt = $conn->prepare("
+        UPDATE tbl_groups 
+        SET name = :name, description = :description 
+        WHERE id = :id AND delete_status = 0
+        ");
+        $stmt->bindParam(':name', $assign_name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        //print_r($_POST);
+        // Insert new permissions using count loop
+        $stmtInsert = $conn->prepare("
+        INSERT INTO tbl_permission_role (permission_id, group_id) 
+        VALUES (:permission_id, :group_id)
+        ");
+
         $a = count($checkItem);
         for ($i = 0; $i < $a; $i++) {
-          $id = $_POST['id'];
-
-
-          $sql = "insert into tbl_permission_role(permission_id,group_id)values('$checkItem[$i]','$id')";
-          $execute = $conn->query($sql);
+          $stmtInsert->bindParam(':permission_id', $checkItem[$i], PDO::PARAM_INT);
+          $stmtInsert->bindParam(':group_id', $id, PDO::PARAM_INT);
+          $stmtInsert->execute();
         }
-        if ($execute == true) {
-          $_SESSION['success'] = "Role Updated Succesfully";
-          header('location:../view_role.php');
-          exit;
-        }
+
+      
+        $_SESSION['success'] = "Role Updated Succesfully";
+        header('location:../view_role.php');
+        exit;
+        
       } elseif ($duplicate) {
         $_SESSION['error'] = "Role name already exists";
         header('location:../view_role.php');
@@ -151,6 +199,16 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['del_id'])) {
+      // CSRF token check
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_role.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
+
       $group_id = $_POST['del_id'];
 
       $stmt = $conn->prepare("

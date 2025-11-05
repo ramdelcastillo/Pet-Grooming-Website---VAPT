@@ -6,6 +6,9 @@ error_reporting(0);
 require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
+
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 
 <div class="dashboard-wrapper">
@@ -32,6 +35,7 @@ require_once('../assets/constants/fetch-my-info.php');
                         <form id="add-result" class="sign-in-form mt-32 add_customer row">
                             <input type="hidden" class="form-control " name="id" value="<?php echo htmlspecialchars($product['inv_no'] ?? '', ENT_QUOTES, 'UTF-8');?>">
                             <input type="hidden" class="form-control " name="paid_amt" value="<?php echo htmlspecialchars($product['paid_amt'] ?? '', ENT_QUOTES, 'UTF-8');?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
                             <?php $current_date = date('Y-m-d'); ?>
                             <div class="mb-3 col-md-6">

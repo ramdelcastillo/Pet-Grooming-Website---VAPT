@@ -3,6 +3,7 @@
 <?php
 error_reporting(0);
 session_start();
+
 if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'] == "admin") {
 
 
@@ -20,6 +21,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (isset($_POST['btn_save'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('Location: ../category.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $name = htmlspecialchars($_POST['name']);
       $status = htmlspecialchars($_POST['status']);
       $id = $_SESSION['id'];
@@ -75,6 +84,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['btn_edit'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('Location: ../category.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $name = htmlspecialchars($_POST['name']);
       $status = htmlspecialchars($_POST['status']);
       $id = $_POST['id'];
@@ -139,6 +156,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['del_id'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('Location: ../category.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $id = $_POST['del_id'];
 
       $stmt = $conn->prepare("

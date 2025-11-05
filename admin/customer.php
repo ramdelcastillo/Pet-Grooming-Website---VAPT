@@ -2,7 +2,8 @@
 <link href="assets/vendor/select2/css/select2.css" rel="stylesheet" />
             <?php include('include/header.php');?>
             <?php include('include/sidebar.php');?>
-             
+<?php  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token']; ?>
         <div class="dashboard-wrapper">
             <div class="container-fluid  dashboard-content">
                 <!-- ============================================================== -->
@@ -26,6 +27,7 @@
                                                 <label class=" control-label">Customer Name:<span class="text-danger">*</span></label>
                                               
                                                     
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
                                                    <input type="text" name="custname" class="form-control" data-provide=""  placeholder="Customer Name" required>
                                         </div>

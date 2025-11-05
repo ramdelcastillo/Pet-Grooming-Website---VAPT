@@ -21,6 +21,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
 
     if (isset($_POST['add_stock'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       // Form se values le rahe hain
       $id = $_POST['id'];
 
@@ -68,6 +76,13 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
 
     if (isset($_POST['btn_save'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
 
 
       $id = $_SESSION['id'];
@@ -121,6 +136,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
 
     // print_r($_POST);
     if (isset($_POST['btn_edit'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $id = $_POST['id'];
       $group_id = $_POST['group_id'];
       $name = trim($_POST['name']);
@@ -268,6 +291,14 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['del_id'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../productdisplay.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $id = $_POST['del_id'];
 
       $stmt = $conn->prepare("

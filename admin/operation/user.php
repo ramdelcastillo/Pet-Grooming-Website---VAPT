@@ -20,6 +20,15 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (isset($_POST['btn_save'])) {
+      // CSRF token check
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_user.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $target_dir = "../../assets/uploadImage/Candidate/";
       $website_logo = basename($_FILES["website_image"]["name"]);
       if ($_FILES["website_image"]["tmp_name"] != '') {
@@ -180,8 +189,15 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['btn_edit'])) {
-      //$id=$_GET['id'];
-      //echo "string";
+      // CSRF token check
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_user.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
+
       $target_dir = "../../assets/uploadImage/Candidate/";
       $website_logo = basename($_FILES["website_image"]["name"]);
       if ($_FILES["website_image"]["tmp_name"] != '') {
@@ -319,6 +335,13 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
     }
 
     if (isset($_POST['del_id'])) {
+      if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = "Invalid CSRF token";
+        header('location:../view_user.php');
+        exit;
+      }
+
+      unset($_SESSION['csrf_token']);
       $userId = $_POST['del_id'];
 
       $stmt = $conn->prepare("

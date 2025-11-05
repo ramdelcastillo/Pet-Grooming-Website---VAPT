@@ -4,6 +4,8 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 <?php
 
@@ -56,7 +58,8 @@ $product_group = $stmt->fetch(PDO::FETCH_ASSOC);
                         <form class="form-horizontal row" action="operation/product_group.php" method="post" enctype="multipart/form-data" id="add_brand">
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label text-sm-right">Category Name<span class="text-danger">*</span></label>
-                               
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
                                     <input type="hidden" class="form-control " name="id" value="<?= $product_group['id']; ?>">
 
 

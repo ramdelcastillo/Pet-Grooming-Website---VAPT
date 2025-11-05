@@ -4,6 +4,8 @@ require_once('../assets/constants/config.php');
 require_once('../assets/constants/check-login.php');
 require_once('../assets/constants/fetch-my-info.php');
 
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 <?php
 
@@ -63,11 +65,14 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom03">First name<span class="text-danger">*</span></label>
                                     <input type="hidden" class="form-control " name="id"
-                                        value="<?php echo htmlspecialchars($product_group['id'] ?? '', ENT_QUOTES, 'UTF-8');?>">
+                                        value="<?php echo htmlspecialchars($product_group['id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    <input type="hidden" name="csrf_token"
+                                        value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
 
                                     <input type="text" class="form-control" name="fname"
-                                        value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8');?>"
-                                        required >
+                                        value="<?php echo htmlspecialchars($product_group['fname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required>
 
                                     <div class="invalid-feedback">
                                     </div>
@@ -75,7 +80,8 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom04">Last name<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="lname"
-                                        value="<?php echo htmlspecialchars($product_group['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required >
+                                        value="<?php echo htmlspecialchars($product_group['lname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required>
                                     <div class="invalid-feedback">
                                     </div>
                                 </div>
@@ -83,8 +89,8 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Email<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="email"
-                                        value="<?php echo htmlspecialchars($product_group['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
-                                        >
+                                        value="<?php echo htmlspecialchars($product_group['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required>
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
@@ -92,17 +98,16 @@ $groups = $stmt->fetchAll();
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Address<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="address"
-                                        value="<?php echo htmlspecialchars($product_group['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
-                                        placeholder="Enter address here">
+                                        value="<?php echo htmlspecialchars($product_group['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required placeholder="Enter address here">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Phone<span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" name="contact"
-                                        value="<?php echo htmlspecialchars($product_group['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required 
-                                        max_length="10" 
-                                        placeholder="Enter phone">
+                                        value="<?php echo htmlspecialchars($product_group['contact'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required max_length="10" placeholder="Enter phone">
                                     <div class="valid-feedback">
                                     </div>
                                 </div>
@@ -112,9 +117,12 @@ $groups = $stmt->fetchAll();
                                         value="">
 
                                         <?php foreach ($groups as $value) { ?>
-                                            <option value="<?php echo htmlspecialchars($value['id'] ?? '', ENT_QUOTES, 'UTF-8');?>" <?php if ($product_group['role_id'] == $value['id']) {
-                                                  echo "selected";
-                                              } ?>><?php echo htmlspecialchars($value['name'] ?? '', ENT_QUOTES, 'UTF-8');?></option>
+                                            <option
+                                                value="<?php echo htmlspecialchars($value['id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                <?php if ($product_group['role_id'] == $value['id']) {
+                                                    echo "selected";
+                                                } ?>><?php echo htmlspecialchars($value['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                     <div class="valid-feedback">
@@ -124,9 +132,8 @@ $groups = $stmt->fetchAll();
 
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
                                     <label for="validationCustom02">Password<span class="text-danger">*</span></label>
-                                    <input type="password" name="password" id="newpassword"
-                                        class="form-control mb-1" required
-                                        data-validation-required-message="Password is required"
+                                    <input type="password" name="password" id="newpassword" class="form-control mb-1"
+                                        required data-validation-required-message="Password is required"
                                         placeholder="Enter Password" value="">
                                     <div class="valid-feedback">
                                     </div>
@@ -134,10 +141,10 @@ $groups = $stmt->fetchAll();
                                     <!-- <span id="password-strength"></span> -->
                                 </div>
                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-2">
-                                    <label for="validationCustom02">Confirm Password<span class="text-danger">*</span></label>
-                                    <input type="password" name="cpassword" id="newpassword"
-                                        class="form-control mb-1" required
-                                        data-validation-required-message="Password is required"
+                                    <label for="validationCustom02">Confirm Password<span
+                                            class="text-danger">*</span></label>
+                                    <input type="password" name="cpassword" id="newpassword" class="form-control mb-1"
+                                        required data-validation-required-message="Password is required"
                                         placeholder="Enter Password" value="">
                                     <div class="valid-feedback">
                                     </div>

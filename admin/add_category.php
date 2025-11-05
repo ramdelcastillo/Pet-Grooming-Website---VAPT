@@ -1,6 +1,9 @@
-<?php include('include/head.php'); ?>
+1<?php include('include/head.php'); ?>
 <?php include('include/header.php'); ?>
 <?php include('include/sidebar.php'); ?>
+
+<?php $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$csrf_token = $_SESSION['csrf_token']; ?>
 
 <div class="dashboard-wrapper">
     <div class="container-fluid  dashboard-content">
@@ -39,7 +42,8 @@
                             <!--<input type="hidden" required="" placeholder="Product Group Name" class="form-control" value="<//?php echo $_SESSION['id'];?>" name="name" required>-->
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label text-sm-right">Category Name<span class="text-danger">*</span></label>
-                              
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
                                     <input type="text" required="" placeholder="Category Name" class="form-control" value="" name="name" required>
                                 
                             </div>
