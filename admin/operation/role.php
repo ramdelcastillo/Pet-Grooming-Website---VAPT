@@ -32,11 +32,29 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
 
       if (!$duplicate) {
+        $checkItem = $_POST["checkItem"];
+
+        if (!is_array($checkItem) || empty($checkItem)) {
+          $_SESSION['error'] = "No permissions selected.";
+          header('location:../view_role.php');
+          exit;
+        }
+
+        foreach ($checkItem as $value) {
+          if (!filter_var($value, FILTER_VALIDATE_INT)) {
+            $_SESSION['error'] = "Invalid permission ID detected.";
+            header('location:../view_role.php');
+            exit;
+          }
+        }
+
+
         $stmt = $conn->prepare("insert into tbl_groups(name,description)values('$assign_name','$description')");
         $stmt->execute();
         $last_id = $conn->lastInsertId();
         $id = $last_id;
-        $checkItem = $_POST["checkItem"];
+
+
         //print_r($_POST);exit;
         $a = count($checkItem);
         for ($i = 0; $i < $a; $i++) {
@@ -85,17 +103,33 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] == "1" && $_SESSION['role'
       $duplicate = $stmt->fetch(PDO::FETCH_ASSOC);
 
       if (!$duplicate) {
+        $checkItem = $_POST["checkItem"];
+
+        if (!is_array($checkItem) || empty($checkItem)) {
+          $_SESSION['error'] = "No permissions selected.";
+          header('location:../view_role.php');
+          exit;
+        }
+
+        foreach ($checkItem as $value) {
+          if (!filter_var($value, FILTER_VALIDATE_INT)) {
+            $_SESSION['error'] = "Invalid permission ID detected.";
+            header('location:../view_role.php');
+            exit;
+          }
+        }
+
         $stmto = $conn->prepare("delete  from tbl_permission_role where group_id='" . $_POST['id'] . "'");
         $stmto->execute();
 
         $stmt = $conn->prepare("UPDATE tbl_groups set name='$assign_name',description='$description' where id='" . $_POST['id'] . "'");
         $stmt->execute();
 
-        $checkItem = $_POST["checkItem"];
         //print_r($_POST);
         $a = count($checkItem);
         for ($i = 0; $i < $a; $i++) {
           $id = $_POST['id'];
+
 
           $sql = "insert into tbl_permission_role(permission_id,group_id)values('$checkItem[$i]','$id')";
           $execute = $conn->query($sql);
